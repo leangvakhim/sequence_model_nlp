@@ -1,16 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sequence Models & Classical NLP</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind Configuration for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5', // Indigo 600
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <h1>Sequence Models & Classical NLP</h1>
-    <ul>
-        <li><a href="./html/text_representation.html">Text Representation</a></li>
-        <li><a href="./html/rnn.html">Recurrent Neural Networks (RNNs)</a></li>
-        <li><a href="./html/lstm_gru.html">LSTMs & GRUs</a></li>
-    </ul>
+
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 w-full backdrop-blur-lg bg-white/80 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight hidden sm:block">NLP Fundamentals</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+
+        <!-- Header Section -->
+        <header class="text-center max-w-3xl mx-auto mb-16">
+            <h1
+                class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">
+                Sequence Models & Classical NLP
+            </h1>
+            <p class="text-lg text-slate-600">
+                Explore the foundational architectures of Natural Language Processing. Master text representation
+                techniques and dive deep into sequential data modeling.
+            </p>
+        </header>
+
+        <!-- Topic Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="topic-grid">
+
+            <!-- Card 1: Text Representation -->
+            <a href="./html/text_representation.html"
+                class="topic-card group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-xl hover:border-primary/50 transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div
+                    class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                    <i class="fa-solid fa-file-word"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-3 topic-title text-slate-900">Text Representation</h2>
+                <p class="text-slate-600 mb-6 flex-grow">
+                    Learn how to convert raw text into numerical features using techniques like Bag of Words, TF-IDF,
+                    and modern Word Embeddings (Word2Vec, GloVe).
+                </p>
+                <div class="mt-auto flex items-center text-primary font-semibold text-sm">
+                    Start Learning
+                    <i
+                        class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                </div>
+            </a>
+
+            <!-- Card 2: RNNs -->
+            <a href="./html/rnn.html"
+                class="topic-card group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div
+                    class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+                    <i class="fa-solid fa-project-diagram"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-3 topic-title text-slate-900">Recurrent Neural Networks</h2>
+                <p class="text-slate-600 mb-6 flex-grow">
+                    Discover the architecture of RNNs, how they process sequential data by maintaining a hidden state,
+                    and understand their limitations.
+                </p>
+                <div
+                    class="mt-auto flex items-center text-emerald-600 font-semibold text-sm group-hover:text-emerald-500 transition-colors">
+                    Start Learning
+                    <i
+                        class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                </div>
+            </a>
+
+            <!-- Card 3: LSTMs & GRUs -->
+            <a href="./html/lstm_gru.html"
+                class="topic-card group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-xl hover:border-orange-500/50 transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                <div
+                    class="w-14 h-14 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-3 topic-title text-slate-900">LSTMs & GRUs</h2>
+                <p class="text-slate-600 mb-6 flex-grow">
+                    Dive into advanced sequential models. Learn how gating mechanisms solve the vanishing gradient
+                    problem to capture long-term dependencies.
+                </p>
+                <div
+                    class="mt-auto flex items-center text-orange-600 font-semibold text-sm group-hover:text-orange-500 transition-colors">
+                    Start Learning
+                    <i
+                        class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
+                </div>
+            </a>
+
+        </div>
+
+    </main>
 </body>
+
 </html>
