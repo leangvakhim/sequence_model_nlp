@@ -1,5 +1,4 @@
-// <!-- Application Logic -->
-// Data structure defining the step-by-step presentation
+// <!-- Application Logic (Integrated into the file) -->
 const stepsData = [
     {
         title: "The Core Problem",
@@ -122,6 +121,9 @@ function updateUI() {
         }
 
         contentContainer.style.opacity = '1';
+
+        // Scroll the left panel back to the top automatically on step change
+        document.querySelector('.overflow-y-auto').scrollTop = 0;
     }, 300);
 
     // Handle Diagrams View Toggling

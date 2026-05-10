@@ -85,7 +85,7 @@
             font-size: 1.2rem;
         }
 
-        /* Scrollbar hiding for cleaner look */
+        /* Scrollbar styling for cleaner look */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -113,7 +113,7 @@
 
         <!-- Header / Progress -->
         <div
-            class="bg-slate-50 px-8 py-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+            class="bg-slate-50 px-8 py-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Sequence Models: LSTMs & GRUs</h1>
                 <p class="text-sm text-slate-500 mt-1">Interactive Step-by-Step Architecture Guide</p>
@@ -127,22 +127,26 @@
         </div>
 
         <!-- Content Area -->
-        <div class="flex-grow flex flex-col lg:flex-row overflow-hidden">
+        <div class="flex-grow flex flex-col lg:flex-row overflow-hidden min-h-0">
 
-            <!-- Left Panel: Text & Equations -->
+            <!-- Left Panel: Text & Equations (NOW SCROLLABLE) -->
+            <!-- We use flex-col and overflow-y-auto here. my-auto on the inner child ensures centering when short, scrolling when long. -->
             <div
-                class="w-full lg:w-5/12 p-8 lg:border-r border-slate-100 overflow-y-auto bg-white flex flex-col justify-center">
-                <div id="content-container" class="transition-opacity duration-300">
-                    <h2 id="step-title" class="text-3xl font-extrabold text-slate-800 mb-4">Title</h2>
-                    <div id="step-description" class="text-lg text-slate-600 leading-relaxed mb-8 space-y-4">
+                class="w-full h-[45%] shrink-0 lg:h-auto lg:shrink lg:w-5/12 p-6 lg:p-8 border-b lg:border-b-0 lg:border-r border-slate-100 overflow-y-auto bg-white flex flex-col">
+                <div id="content-container" class="transition-opacity duration-300 my-auto pb-4">
+                    <h2 id="step-title" class="text-2xl lg:text-3xl font-extrabold text-slate-800 mb-3 lg:mb-4">Title
+                    </h2>
+                    <div id="step-description"
+                        class="text-base lg:text-lg text-slate-600 leading-relaxed mb-6 lg:mb-8 space-y-4">
                         Description goes here...
                     </div>
 
                     <!-- Math Equations Container -->
                     <div id="math-container" class="hidden opacity-0 transition-opacity duration-500">
-                        <h3 class="text-sm font-bold tracking-wider text-slate-400 uppercase mb-3">Applied Equation</h3>
+                        <h3 class="text-xs lg:text-sm font-bold tracking-wider text-slate-400 uppercase mb-2 lg:mb-3">
+                            Applied Equation</h3>
                         <div id="math-content"
-                            class="math-font text-lg lg:text-xl bg-slate-50 p-5 rounded-xl border border-slate-200 text-slate-800 shadow-sm inline-block">
+                            class="math-font text-base lg:text-xl bg-slate-50 p-4 lg:p-5 rounded-xl border border-slate-200 text-slate-800 shadow-sm inline-block overflow-x-auto max-w-full">
                             <!-- Equation injected here -->
                         </div>
                     </div>
@@ -150,21 +154,26 @@
             </div>
 
             <!-- Right Panel: Interactive Diagrams -->
-            <div class="w-full lg:w-7/12 bg-slate-50 p-8 flex items-center justify-center relative overflow-hidden">
+            <div
+                class="w-full h-[55%] shrink-0 lg:h-auto lg:shrink lg:w-7/12 bg-slate-50 p-2 sm:p-8 flex items-center justify-center relative overflow-hidden">
 
                 <!-- Introduction Graphic -->
                 <div id="diagram-intro"
-                    class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center transition-all duration-500 z-10">
-                    <div class="flex items-center justify-center gap-4 mb-8">
-                        <div class="p-4 bg-white shadow rounded-xl border border-slate-200 opacity-30">Word 1</div>
+                    class="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-8 text-center transition-all duration-500 z-10">
+                    <div
+                        class="flex items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 scale-75 sm:scale-100 origin-center">
+                        <div class="p-3 sm:p-4 bg-white shadow rounded-xl border border-slate-200 opacity-30">Word 1
+                        </div>
                         <span class="text-slate-400">→</span>
-                        <div class="p-4 bg-white shadow rounded-xl border border-slate-200 opacity-60">Word 2</div>
+                        <div class="p-3 sm:p-4 bg-white shadow rounded-xl border border-slate-200 opacity-60">Word 2
+                        </div>
                         <span class="text-slate-400">→</span>
                         <div
-                            class="p-4 bg-blue-50 shadow-md rounded-xl border-2 border-blue-400 font-bold text-blue-700">
+                            class="p-3 sm:p-4 bg-blue-50 shadow-md rounded-xl border-2 border-blue-400 font-bold text-blue-700">
                             Word N</div>
                     </div>
-                    <p class="text-slate-500 max-w-md italic">Standard RNNs suffer from "Vanishing Gradients" — they
+                    <p class="text-sm sm:text-base text-slate-500 max-w-md italic px-4">Standard RNNs suffer from
+                        "Vanishing Gradients" — they
                         forget the distant past (Word 1) when processing the present (Word N). LSTMs and GRUs fix this.
                     </p>
                 </div>
@@ -172,7 +181,8 @@
                 <!-- GRU Diagram -->
                 <div id="diagram-gru"
                     class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95">
-                    <div class="relative w-full max-w-lg p-6 bg-white rounded-2xl shadow-lg border border-slate-200">
+                    <div
+                        class="relative w-full max-w-lg p-4 sm:p-6 bg-white rounded-2xl shadow-lg border border-slate-200 scale-[0.70] sm:scale-90 lg:scale-100 origin-center">
                         <div
                             class="absolute -top-3 left-6 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                             GRU Cell</div>
@@ -235,7 +245,8 @@
                 <!-- LSTM Diagram -->
                 <div id="diagram-lstm"
                     class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95">
-                    <div class="relative w-full max-w-2xl p-6 bg-white rounded-2xl shadow-lg border border-slate-200">
+                    <div
+                        class="relative w-full max-w-2xl p-4 sm:p-6 bg-white rounded-2xl shadow-lg border border-slate-200 scale-[0.55] sm:scale-[0.8] lg:scale-100 origin-center">
                         <div
                             class="absolute -top-3 left-6 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                             LSTM Cell</div>
@@ -323,54 +334,80 @@
                 </div>
 
                 <div id="diagram-summary"
-                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 p-8">
-                    <div class="w-full h-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
-                        <div class="bg-slate-800 text-white p-4 text-center font-bold tracking-wide shadow-sm z-10 relative">Cheat
+                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 p-4 sm:p-8">
+                    <div
+                        class="w-full h-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        <div
+                            class="bg-slate-800 text-white p-4 text-center font-bold tracking-wide shadow-sm z-10 relative">
+                            Cheat
                             Sheet: Equations Overview</div>
 
-                        <!-- Added flex-grow and overflow-y-auto here, and wrapped columns in a min-h-full flex box -->
+                        <!-- Scrollable list of formulas -->
                         <div class="flex-grow overflow-y-auto bg-white">
                             <div class="flex flex-col sm:flex-row p-4 sm:p-6 gap-6 min-h-full">
                                 <!-- GRU Col -->
                                 <div class="flex-1 bg-purple-50 rounded-xl p-5 border border-purple-100 shadow-sm">
-                                    <h3 class="text-lg font-bold text-purple-800 border-b border-purple-200 pb-2 mb-4">GRU (Gated
+                                    <h3 class="text-lg font-bold text-purple-800 border-b border-purple-200 pb-2 mb-4">
+                                        GRU (Gated
                                         Recurrent Unit)</h3>
                                     <ul class="space-y-4 math-font text-slate-700">
-                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Reset Gate</strong>
-                                            r<sub>t</sub> = σ(W<sub>r</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>r</sub>)
+                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Reset
+                                                Gate</strong>
+                                            r<sub>t</sub> = σ(W<sub>r</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                            b<sub>r</sub>)
                                         </li>
-                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Update Gate</strong>
-                                            z<sub>t</sub> = σ(W<sub>z</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>z</sub>)
+                                        <li><strong
+                                                class="font-sans text-xs text-purple-600 uppercase block mb-1">Update
+                                                Gate</strong>
+                                            z<sub>t</sub> = σ(W<sub>z</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                            b<sub>z</sub>)
                                         </li>
-                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Candidate
-                                                Memory</strong> h̃<sub>t</sub> = tanh(W<sub>h</sub> &middot; [r<sub>t</sub> &lowast;
+                                        <li><strong
+                                                class="font-sans text-xs text-purple-600 uppercase block mb-1">Candidate
+                                                Memory</strong> h̃<sub>t</sub> = tanh(W<sub>h</sub> &middot;
+                                            [r<sub>t</sub> &lowast;
                                             h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>h</sub>)</li>
-                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Final Hidden
-                                                State</strong> h<sub>t</sub> = (1 - z<sub>t</sub>) &lowast; h<sub>t-1</sub> +
+                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Final
+                                                Hidden
+                                                State</strong> h<sub>t</sub> = (1 - z<sub>t</sub>) &lowast;
+                                            h<sub>t-1</sub> +
                                             z<sub>t</sub> &lowast; h̃<sub>t</sub></li>
                                     </ul>
                                 </div>
                                 <!-- LSTM Col -->
                                 <div class="flex-1 bg-blue-50 rounded-xl p-5 border border-blue-100 shadow-sm">
-                                    <h3 class="text-lg font-bold text-blue-800 border-b border-blue-200 pb-2 mb-4">LSTM (Long Short-Term
+                                    <h3 class="text-lg font-bold text-blue-800 border-b border-blue-200 pb-2 mb-4">LSTM
+                                        (Long Short-Term
                                         Memory)</h3>
                                     <ul class="space-y-4 math-font text-slate-700">
-                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Forget Gate</strong>
-                                            f<sub>t</sub> = σ(W<sub>f</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>f</sub>)
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Forget
+                                                Gate</strong>
+                                            f<sub>t</sub> = σ(W<sub>f</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                            b<sub>f</sub>)
                                         </li>
-                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Input Gate</strong>
-                                            i<sub>t</sub> = σ(W<sub>i</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>i</sub>)
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Input
+                                                Gate</strong>
+                                            i<sub>t</sub> = σ(W<sub>i</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                            b<sub>i</sub>)
                                         </li>
-                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Candidate Cell</strong>
-                                            C̃<sub>t</sub> = tanh(W<sub>C</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                        <li><strong
+                                                class="font-sans text-xs text-blue-600 uppercase block mb-1">Candidate
+                                                Cell</strong>
+                                            C̃<sub>t</sub> = tanh(W<sub>C</sub> &middot; [h<sub>t-1</sub>,
+                                            x<sub>t</sub>] +
                                             b<sub>C</sub>)</li>
-                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Cell State
-                                                Update</strong> C<sub>t</sub> = f<sub>t</sub> &lowast; C<sub>t-1</sub> + i<sub>t</sub>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Cell
+                                                State
+                                                Update</strong> C<sub>t</sub> = f<sub>t</sub> &lowast; C<sub>t-1</sub> +
+                                            i<sub>t</sub>
                                             &lowast; C̃<sub>t</sub></li>
-                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Output Gate</strong>
-                                            o<sub>t</sub> = σ(W<sub>o</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>o</sub>)
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Output
+                                                Gate</strong>
+                                            o<sub>t</sub> = σ(W<sub>o</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                            b<sub>o</sub>)
                                         </li>
-                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Hidden State</strong>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Hidden
+                                                State</strong>
                                             h<sub>t</sub> = o<sub>t</sub> &lowast; tanh(C<sub>t</sub>)</li>
                                     </ul>
                                 </div>
@@ -383,7 +420,7 @@
         </div>
 
         <!-- Footer / Navigation Controls -->
-        <div class="bg-white border-t border-slate-200 px-8 py-5 flex justify-between items-center">
+        <div class="bg-white border-t border-slate-200 px-8 py-5 flex justify-between items-center shrink-0">
             <button id="btn-prev"
                 class="px-6 py-2.5 rounded-lg font-semibold text-slate-600 border-2 border-slate-200 hover:bg-slate-50 hover:text-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                 ← Back Step
