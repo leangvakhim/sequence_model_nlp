@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSTM & GRU Interactive Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Animations and Styles */
+        body {
+            background-color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .math-font {
+            font-family: 'Georgia', serif;
+        }
+
+        /* Smooth transitions for nodes */
+        .diagram-node {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Active node styling */
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 12px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .active-node {
+            opacity: 1 !important;
+            transform: scale(1.05);
+            border-color: #2563eb !important;
+            border-width: 2px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: pulse-glow 2s infinite;
+            z-index: 10;
+        }
+
+        .inactive-node {
+            opacity: 0.3;
+            transform: scale(0.98);
+            filter: grayscale(60%);
+            z-index: 1;
+        }
+
+        /* Connecting Lines (Simulated via flex/borders) */
+        .arrow-down::after {
+            content: '↓';
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        .arrow-up::after {
+            content: '↑';
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        .arrow-right::after {
+            content: '→';
+            position: absolute;
+            right: -24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        /* Scrollbar hiding for cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 antialiased min-h-screen flex items-center justify-center p-4 sm:p-8">
+
+    <!-- Main Container -->
+    <div
+        class="max-w-7xl w-full bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col h-[92vh]">
+
+        <!-- Header / Progress -->
+        <div
+            class="bg-slate-50 px-8 py-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Sequence Models: LSTMs & GRUs</h1>
+                <p class="text-sm text-slate-500 mt-1">Interactive Step-by-Step Architecture Guide</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-medium text-slate-500" id="step-counter">Step 1 of 8</span>
+                <div class="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-500 w-1/8"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-grow flex flex-col lg:flex-row overflow-hidden">
+
+            <!-- Left Panel: Text & Equations -->
+            <div
+                class="w-full lg:w-5/12 p-8 lg:border-r border-slate-100 overflow-y-auto bg-white flex flex-col justify-center">
+                <div id="content-container" class="transition-opacity duration-300">
+                    <h2 id="step-title" class="text-3xl font-extrabold text-slate-800 mb-4">Title</h2>
+                    <div id="step-description" class="text-lg text-slate-600 leading-relaxed mb-8 space-y-4">
+                        Description goes here...
+                    </div>
+
+                    <!-- Math Equations Container -->
+                    <div id="math-container" class="hidden opacity-0 transition-opacity duration-500">
+                        <h3 class="text-sm font-bold tracking-wider text-slate-400 uppercase mb-3">Applied Equation</h3>
+                        <div id="math-content"
+                            class="math-font text-lg lg:text-xl bg-slate-50 p-5 rounded-xl border border-slate-200 text-slate-800 shadow-sm inline-block">
+                            <!-- Equation injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Interactive Diagrams -->
+            <div class="w-full lg:w-7/12 bg-slate-50 p-8 flex items-center justify-center relative overflow-hidden">
+
+                <!-- Introduction Graphic -->
+                <div id="diagram-intro"
+                    class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center transition-all duration-500 z-10">
+                    <div class="flex items-center justify-center gap-4 mb-8">
+                        <div class="p-4 bg-white shadow rounded-xl border border-slate-200 opacity-30">Word 1</div>
+                        <span class="text-slate-400">→</span>
+                        <div class="p-4 bg-white shadow rounded-xl border border-slate-200 opacity-60">Word 2</div>
+                        <span class="text-slate-400">→</span>
+                        <div
+                            class="p-4 bg-blue-50 shadow-md rounded-xl border-2 border-blue-400 font-bold text-blue-700">
+                            Word N</div>
+                    </div>
+                    <p class="text-slate-500 max-w-md italic">Standard RNNs suffer from "Vanishing Gradients" — they
+                        forget the distant past (Word 1) when processing the present (Word N). LSTMs and GRUs fix this.
+                    </p>
+                </div>
+
+                <!-- GRU Diagram -->
+                <div id="diagram-gru"
+                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95">
+                    <div class="relative w-full max-w-lg p-6 bg-white rounded-2xl shadow-lg border border-slate-200">
+                        <div
+                            class="absolute -top-3 left-6 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            GRU Cell</div>
+
+                        <!-- Flow Layout -->
+                        <div class="flex flex-col gap-12 mt-6">
+                            <!-- Top: Output -->
+                            <div class="flex justify-center">
+                                <div id="gru-ht"
+                                    class="diagram-node bg-blue-100 border-2 border-blue-300 text-blue-800 font-bold px-6 py-3 rounded-xl shadow-sm arrow-up relative top-[-10px]">
+                                    h<sub>t</sub> (Final Hidden State)
+                                </div>
+                            </div>
+
+                            <!-- Middle: Blend & Candidate -->
+                            <div class="flex justify-center items-center gap-6">
+                                <div id="gru-op-blend"
+                                    class="diagram-node w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-xl font-bold arrow-right relative">
+                                    ⊕</div>
+                                <div id="gru-cand"
+                                    class="diagram-node bg-emerald-100 border-2 border-emerald-300 text-emerald-800 font-bold px-6 py-3 rounded-xl shadow-sm">
+                                    h̃<sub>t</sub> (Candidate) <span
+                                        class="block text-xs font-normal opacity-70">tanh</span>
+                                </div>
+                            </div>
+
+                            <!-- Lower Middle: Gates -->
+                            <div class="flex justify-center items-center gap-8">
+                                <div id="gru-update"
+                                    class="diagram-node bg-yellow-100 border-2 border-yellow-400 text-yellow-800 font-bold px-5 py-3 rounded-xl shadow-sm arrow-up relative">
+                                    z<sub>t</sub> (Update Gate) <span class="block text-xs font-normal opacity-70">σ
+                                        (Sigmoid)</span>
+                                </div>
+                                <div id="gru-reset"
+                                    class="diagram-node bg-yellow-100 border-2 border-yellow-400 text-yellow-800 font-bold px-5 py-3 rounded-xl shadow-sm arrow-up relative">
+                                    r<sub>t</sub> (Reset Gate) <span class="block text-xs font-normal opacity-70">σ
+                                        (Sigmoid)</span>
+                                </div>
+                            </div>
+
+                            <!-- Bottom: Inputs -->
+                            <div
+                                class="flex justify-between px-8 border-t-2 border-dashed border-slate-200 pt-6 mt-2 relative">
+                                <div
+                                    class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2 text-xs text-slate-400 font-medium">
+                                    Inputs</div>
+                                <div id="gru-ht-prev"
+                                    class="diagram-node bg-slate-100 border-2 border-slate-300 text-slate-700 font-bold px-5 py-2 rounded-xl arrow-up relative">
+                                    h<sub>t-1</sub> (Past)
+                                </div>
+                                <div id="gru-xt"
+                                    class="diagram-node bg-slate-100 border-2 border-slate-300 text-slate-700 font-bold px-5 py-2 rounded-xl arrow-up relative">
+                                    x<sub>t</sub> (Present)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LSTM Diagram -->
+                <div id="diagram-lstm"
+                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95">
+                    <div class="relative w-full max-w-2xl p-6 bg-white rounded-2xl shadow-lg border border-slate-200">
+                        <div
+                            class="absolute -top-3 left-6 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                            LSTM Cell</div>
+
+                        <div class="flex flex-col gap-8 mt-4">
+
+                            <!-- Top Row: Cell State (The Conveyor Belt) -->
+                            <div
+                                class="flex items-center justify-between bg-blue-50 p-4 rounded-xl border border-blue-100 relative">
+                                <div
+                                    class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-50 px-2 text-xs text-blue-500 font-bold">
+                                    Long-Term Memory (Cell State)</div>
+                                <div id="lstm-ct-prev"
+                                    class="diagram-node bg-indigo-100 border-2 border-indigo-300 text-indigo-800 font-bold px-4 py-2 rounded-lg arrow-right relative">
+                                    C<sub>t-1</sub></div>
+
+                                <div id="lstm-op-forget"
+                                    class="diagram-node w-10 h-10 rounded-full bg-red-100 border border-red-300 flex items-center justify-center font-bold text-red-600 arrow-right relative">
+                                    ⊗</div>
+
+                                <div id="lstm-op-input"
+                                    class="diagram-node w-10 h-10 rounded-full bg-green-100 border border-green-300 flex items-center justify-center font-bold text-green-600 arrow-right relative">
+                                    ⊕</div>
+
+                                <div id="lstm-ct"
+                                    class="diagram-node bg-indigo-100 border-2 border-indigo-300 text-indigo-800 font-bold px-4 py-2 rounded-lg arrow-down relative">
+                                    C<sub>t</sub></div>
+                            </div>
+
+                            <!-- Middle Row: Gates -->
+                            <div class="flex justify-between items-end gap-2 px-2 mt-4">
+                                <div id="lstm-forget"
+                                    class="diagram-node bg-yellow-100 border-2 border-yellow-400 text-yellow-800 text-center font-bold px-3 py-3 rounded-xl shadow-sm flex-1 arrow-up relative">
+                                    f<sub>t</sub> <br><span class="text-[10px] font-normal uppercase opacity-80">Forget
+                                        Gate</span>
+                                </div>
+
+                                <div id="lstm-input"
+                                    class="diagram-node bg-yellow-100 border-2 border-yellow-400 text-yellow-800 text-center font-bold px-3 py-3 rounded-xl shadow-sm flex-1 arrow-up relative">
+                                    i<sub>t</sub> <br><span class="text-[10px] font-normal uppercase opacity-80">Input
+                                        Gate</span>
+                                </div>
+
+                                <div id="lstm-cand"
+                                    class="diagram-node bg-emerald-100 border-2 border-emerald-400 text-emerald-800 text-center font-bold px-3 py-3 rounded-xl shadow-sm flex-1 arrow-up relative">
+                                    C̃<sub>t</sub> <br><span
+                                        class="text-[10px] font-normal uppercase opacity-80">Candidate</span>
+                                </div>
+
+                                <div id="lstm-output"
+                                    class="diagram-node bg-yellow-100 border-2 border-yellow-400 text-yellow-800 text-center font-bold px-3 py-3 rounded-xl shadow-sm flex-1 arrow-up relative">
+                                    o<sub>t</sub> <br><span class="text-[10px] font-normal uppercase opacity-80">Output
+                                        Gate</span>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Row: Short-term / Inputs -->
+                            <div
+                                class="flex justify-between items-center px-4 border-t-2 border-dashed border-slate-200 pt-6 relative">
+                                <div
+                                    class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2 text-xs text-slate-400 font-medium">
+                                    Short-Term Memory & Inputs</div>
+
+                                <div class="flex gap-4">
+                                    <div id="lstm-ht-prev"
+                                        class="diagram-node bg-slate-100 border-2 border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg arrow-up relative">
+                                        h<sub>t-1</sub></div>
+                                    <div id="lstm-xt"
+                                        class="diagram-node bg-slate-100 border-2 border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg arrow-up relative">
+                                        x<sub>t</sub></div>
+                                </div>
+
+                                <!-- Result Hidden State -->
+                                <div class="flex items-center gap-2">
+                                    <div id="lstm-op-hidden"
+                                        class="diagram-node w-8 h-8 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center font-bold text-blue-600 arrow-right relative text-sm">
+                                        ⊗</div>
+                                    <div id="lstm-ht"
+                                        class="diagram-node bg-blue-100 border-2 border-blue-400 text-blue-800 font-bold px-5 py-3 rounded-xl shadow-md">
+                                        h<sub>t</sub></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="diagram-summary"
+                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 p-8">
+                    <div class="w-full h-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="bg-slate-800 text-white p-4 text-center font-bold tracking-wide shadow-sm z-10 relative">Cheat
+                            Sheet: Equations Overview</div>
+
+                        <!-- Added flex-grow and overflow-y-auto here, and wrapped columns in a min-h-full flex box -->
+                        <div class="flex-grow overflow-y-auto bg-white">
+                            <div class="flex flex-col sm:flex-row p-4 sm:p-6 gap-6 min-h-full">
+                                <!-- GRU Col -->
+                                <div class="flex-1 bg-purple-50 rounded-xl p-5 border border-purple-100 shadow-sm">
+                                    <h3 class="text-lg font-bold text-purple-800 border-b border-purple-200 pb-2 mb-4">GRU (Gated
+                                        Recurrent Unit)</h3>
+                                    <ul class="space-y-4 math-font text-slate-700">
+                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Reset Gate</strong>
+                                            r<sub>t</sub> = σ(W<sub>r</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>r</sub>)
+                                        </li>
+                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Update Gate</strong>
+                                            z<sub>t</sub> = σ(W<sub>z</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>z</sub>)
+                                        </li>
+                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Candidate
+                                                Memory</strong> h̃<sub>t</sub> = tanh(W<sub>h</sub> &middot; [r<sub>t</sub> &lowast;
+                                            h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>h</sub>)</li>
+                                        <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Final Hidden
+                                                State</strong> h<sub>t</sub> = (1 - z<sub>t</sub>) &lowast; h<sub>t-1</sub> +
+                                            z<sub>t</sub> &lowast; h̃<sub>t</sub></li>
+                                    </ul>
+                                </div>
+                                <!-- LSTM Col -->
+                                <div class="flex-1 bg-blue-50 rounded-xl p-5 border border-blue-100 shadow-sm">
+                                    <h3 class="text-lg font-bold text-blue-800 border-b border-blue-200 pb-2 mb-4">LSTM (Long Short-Term
+                                        Memory)</h3>
+                                    <ul class="space-y-4 math-font text-slate-700">
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Forget Gate</strong>
+                                            f<sub>t</sub> = σ(W<sub>f</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>f</sub>)
+                                        </li>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Input Gate</strong>
+                                            i<sub>t</sub> = σ(W<sub>i</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>i</sub>)
+                                        </li>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Candidate Cell</strong>
+                                            C̃<sub>t</sub> = tanh(W<sub>C</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] +
+                                            b<sub>C</sub>)</li>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Cell State
+                                                Update</strong> C<sub>t</sub> = f<sub>t</sub> &lowast; C<sub>t-1</sub> + i<sub>t</sub>
+                                            &lowast; C̃<sub>t</sub></li>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Output Gate</strong>
+                                            o<sub>t</sub> = σ(W<sub>o</sub> &middot; [h<sub>t-1</sub>, x<sub>t</sub>] + b<sub>o</sub>)
+                                        </li>
+                                        <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Hidden State</strong>
+                                            h<sub>t</sub> = o<sub>t</sub> &lowast; tanh(C<sub>t</sub>)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer / Navigation Controls -->
+        <div class="bg-white border-t border-slate-200 px-8 py-5 flex justify-between items-center">
+            <button id="btn-prev"
+                class="px-6 py-2.5 rounded-lg font-semibold text-slate-600 border-2 border-slate-200 hover:bg-slate-50 hover:text-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                ← Back Step
+            </button>
+            <button id="btn-next"
+                class="px-8 py-2.5 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                Next Step →
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/lstm_gru.js"></script>
+</body>
+
+</html>

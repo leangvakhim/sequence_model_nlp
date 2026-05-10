@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Recurrent Neural Networks (RNNs)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for rendering equations -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        /* Smooth fade transition for step content */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+
+        /* Custom animation for sequence visualization */
+        @keyframes highlight {
+            0% {
+                background-color: #e0e7ff;
+                transform: scale(1);
+            }
+
+            50% {
+                background-color: #c7d2fe;
+                transform: scale(1.1);
+            }
+
+            100% {
+                background-color: #e0e7ff;
+                transform: scale(1);
+            }
+        }
+
+        .seq-animate {
+            animation: highlight 2s infinite;
+        }
+
+        .seq-delay-1 {
+            animation-delay: 0.6s;
+        }
+
+        .seq-delay-2 {
+            animation-delay: 1.2s;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 sm:p-8 font-sans text-slate-800">
+
+    <!-- Main Container -->
+    <div
+        class="max-w-5xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col min-h-[600px] border border-slate-200">
+
+        <!-- Header -->
+        <header class="bg-white border-b border-slate-100 p-6 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-900">Understanding RNNs</h1>
+            <p class="text-slate-500 mt-2 text-sm sm:text-base">A Step-by-Step Interactive Guide to Recurrent Neural
+                Networks</p>
+
+            <!-- Progress Indicators -->
+            <div class="flex justify-center items-center mt-6 space-x-2" id="progress-container">
+                <!-- Dots injected via JS -->
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="flex-grow p-6 sm:p-10 flex flex-col md:flex-row items-center gap-8 relative" id="content-area">
+
+            <!-- Text Description Container -->
+            <div class="md:w-1/2 space-y-4" id="text-container">
+                <h2 id="step-title" class="text-2xl font-semibold text-indigo-700">Loading...</h2>
+                <div id="step-description" class="text-slate-600 leading-relaxed text-lg">
+                    <!-- Text injected via JS -->
+                </div>
+            </div>
+
+            <!-- Visual Container -->
+            <div class="md:w-1/2 w-full flex justify-center items-center bg-slate-50 rounded-xl p-6 min-h-[300px] border border-slate-100 shadow-inner"
+                id="visual-container">
+                <!-- Visuals injected via JS -->
+            </div>
+
+        </main>
+
+        <!-- Footer / Controls -->
+        <footer class="bg-slate-50 border-t border-slate-200 p-4 sm:p-6 flex justify-between items-center">
+            <button id="btn-prev"
+                class="px-6 py-2.5 rounded-lg font-medium text-slate-600 bg-white border border-slate-300 shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                &larr; Back
+            </button>
+
+            <span id="step-counter" class="text-slate-400 font-medium text-sm">Step 1 of X</span>
+
+            <button id="btn-next"
+                class="px-6 py-2.5 rounded-lg font-medium text-white bg-indigo-600 shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                Next Step &rarr;
+            </button>
+        </footer>
+    </div>
+
+    <script src="../js/rnn.js"></script>
+</body>
+
+</html>
