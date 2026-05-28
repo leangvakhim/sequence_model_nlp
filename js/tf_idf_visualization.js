@@ -35,9 +35,15 @@ function updateUI() {
     const progressPercentage = ((currentSlideIndex + 1) / totalSlides) * 100;
     progressBar.style.width = `${progressPercentage}%`;
 
-    // Re-render MathJax just in case (though usually fine if pre-rendered)
-    if (window.MathJax) {
-        MathJax.typesetPromise();
+    // Re-render math using KaTeX
+    if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: '$$', right: '$$', display: true },
+                { left: '$', right: '$', display: false }
+            ],
+            throwOnError: false
+        });
     }
 }
 
@@ -51,6 +57,11 @@ function changeSlide(direction) {
 
 // Initialize UI
 updateUI();
+
+// Ensure Math renders if KaTeX scripts load asynchronously
+window.addEventListener('load', () => {
+    if (window.renderMathInElement) updateUI();
+});
 
 // Game Logic
 function calculateGame(word, countInDoc, docsWithTerm) {
