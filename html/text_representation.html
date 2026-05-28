@@ -33,7 +33,7 @@
         class="bg-white max-w-4xl w-full rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col h-[650px] max-h-[90vh]">
 
         <!-- Header -->
-        <header class="bg-blue-600 text-white p-6">
+        <header class="bg-blue-600 text-white p-6 shrink-0">
             <h1 class="text-2xl font-bold flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -50,7 +50,7 @@
 
             <!-- Step Text Context -->
             <div class="mb-6 md:mb-8 shrink-0">
-                <div class="text-sm font-bold text-blue-500 uppercase tracking-wider mb-2" id="step-counter">Step 1 of 6
+                <div class="text-sm font-bold text-blue-500 uppercase tracking-wider mb-2" id="step-counter">Step 1 of 7
                 </div>
                 <h2 class="text-3xl font-bold text-gray-900 mb-3" id="step-title">The Raw Text</h2>
                 <p class="text-gray-600 text-lg leading-relaxed" id="step-desc">Before a computer can understand
@@ -58,7 +58,7 @@
             </div>
 
             <!-- Visual Display Area -->
-            <div class="flex-1 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex p-4 md:p-6 relative overflow-y-auto min-h-[300px]"
+            <div class="flex-1 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 flex flex-col p-4 md:p-6 relative overflow-auto min-h-[300px]"
                 id="visual-container">
                 <!-- Visual content gets injected here by JavaScript -->
             </div>
@@ -66,7 +66,7 @@
         </main>
 
         <!-- Navigation Footer -->
-        <footer class="border-t border-gray-100 p-6 flex justify-between items-center bg-gray-50">
+        <footer class="border-t border-gray-100 p-6 flex justify-between items-center bg-gray-50 shrink-0">
             <button id="btn-prev"
                 class="px-6 py-2.5 rounded-lg font-medium text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
@@ -77,7 +77,7 @@
             </button>
 
             <!-- Progress Dots -->
-            <div class="flex gap-2" id="progress-dots">
+            <div class="flex gap-2 flex-wrap justify-center max-w-[50%]" id="progress-dots">
                 <!-- Dots injected via JS -->
             </div>
 

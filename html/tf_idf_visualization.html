@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding TF-IDF: The Library Detective</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- MathJax for rendering LaTeX formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        tf: '#3b82f6', // Blue for Local
+                        idf: '#f59e0b', // Amber for Global
+                        tfidf: '#10b981', // Green for Final
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .math-box {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .highlight-tf {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .highlight-idf {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .highlight-tfidf {
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
+
+    <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh] sm:h-[80vh]">
+
+        <!-- Header & Progress -->
+        <div class="bg-slate-900 text-white p-6 relative">
+            <h1 class="text-2xl font-bold flex items-center gap-3">
+                <i class="ph ph-magnifying-glass text-tfidf text-3xl"></i>
+                TF-IDF: The Keyword Detector
+            </h1>
+            <p class="text-slate-400 mt-1 text-sm">How computers find the secret topic of a document.</p>
+
+            <!-- Progress Bar -->
+            <div class="absolute bottom-0 left-0 w-full h-1.5 bg-slate-700">
+                <div id="progress-bar" class="h-full bg-tfidf transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-6 sm:p-10 relative bg-slate-50" id="slide-container">
+
+            <!-- Slide 1: Introduction -->
+            <div class="slide active" id="slide-0">
+                <div
+                    class="inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    The Goal</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Building a Smart Search Engine</h2>
+                <p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                    Imagine you are building a search engine for a massive library.
+                </p>
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 mb-6">
+                    <i class="ph ph-magnifying-glass text-4xl text-slate-400"></i>
+                    <p class="text-xl font-mono bg-slate-100 p-2 rounded w-full">"the biology of artificial
+                        intelligence"</p>
+                </div>
+                <p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                    If someone searches for this phrase, you want the computer to instantly ignore common, boring words
+                    like <strong>"the"</strong> and <strong>"of"</strong>. Instead, it should focus heavily on rare,
+                    important words like <span class="highlight-tfidf">"biology"</span> and <span
+                        class="highlight-tfidf">"intelligence"</span>.
+                </p>
+                <p class="text-lg text-slate-800 font-semibold">
+                    TF-IDF is the mathematical formula that scores exactly how important a word is. Let's learn how it
+                    works!
+                </p>
+            </div>
+
+            <!-- Slide 2: The Detective - Wrong Way -->
+            <div class="slide" id="slide-1">
+                <div class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">The
+                    Problem</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">The Library Detective (The Wrong Way)</h2>
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="flex-1 text-lg text-slate-600 leading-relaxed">
+                        <p class="mb-4">Imagine you are a Library Detective. You find a giant book on the floor, but the
+                            cover is ripped off. You have no idea what it's about.</p>
+                        <p class="mb-4"><strong>The Local Search:</strong> You open the book and start counting words.
+                            You notice the word <span class="highlight-tf">"the"</span> is printed 500 times!</p>
+                        <p class="bg-red-50 p-4 rounded-lg border border-red-200 text-red-900">
+                            You run to the librarian: "I solved the mystery! This book is about 'the'!"<br><br>
+                            The librarian laughs. <em>Every single book</em> in the library is full of the word "the".
+                            That doesn't help at all!
+                        </p>
+                    </div>
+                    <div
+                        class="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-slate-200">
+                        <i class="ph ph-book-open text-8xl text-slate-300"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Step 1 TF -->
+            <div class="slide" id="slide-2">
+                <div class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    Step 1</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Term Frequency (TF) - The Local Score</h2>
+                <p class="text-lg text-slate-600 mb-2">The first step asks a simple probability question:</p>
+                <p class="text-xl font-semibold text-slate-800 mb-6 text-center italic">"How much of this specific
+                    document is made up of our target word?"</p>
+
+                <div class="math-box text-center text-lg">
+                    $$\text{TF} = \frac{\text{Count of term in document}}{\text{Total words in document}}$$
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+                    <h3 class="font-bold text-blue-900 mb-2">The Calculation Concept</h3>
+                    <p class="mb-2">Let's say you have a short article about tech that is exactly <strong>100
+                            words</strong> long. The word <strong>"Python"</strong> appears <strong>5 times</strong> in
+                        this article.</p>
+                    <ul class="list-disc ml-6 mb-4 text-slate-700">
+                        <li>Count of term = 5</li>
+                        <li>Total words = 100</li>
+                    </ul>
+                    <div class="math-box bg-white">
+                        $$\text{TF} = \frac{5}{100} = \mathbf{0.05}$$
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">The TF score is 0.05. The more a word appears in a document,
+                        the higher its TF score.</p>
+                </div>
+            </div>
+
+            <!-- Slide 4: The Detective - Right Way -->
+            <div class="slide" id="slide-3">
+                <div class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    The Solution</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">The Library Detective (The Right Way)</h2>
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="flex-1 text-lg text-slate-600 leading-relaxed">
+                        <p class="mb-4">You try again. This time, you notice the word <span
+                                class="highlight-tfidf">"Dinosaur"</span> appears 50 times in your mystery book.</p>
+                        <p class="mb-4"><strong>The Global Search:</strong> Before you celebrate, you check the
+                            <em>whole library</em>. You ask the librarian, "Excuse me, does every book talk about
+                            Dinosaurs?"</p>
+                        <p class="bg-green-50 p-4 rounded-lg border border-green-200 text-green-900">
+                            The librarian says, "No! Out of our 10,000 books, only 3 of them mention Dinosaurs."<br><br>
+                            <strong>Bingo! You solved it!</strong> High local count + very rare globally = The true
+                            topic.
+                        </p>
+                    </div>
+                    <div
+                        class="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-green-200 relative">
+                        <i class="ph ph-books text-8xl text-green-500"></i>
+                        <i
+                            class="ph ph-check-circle text-4xl text-green-600 absolute bottom-2 right-2 bg-white rounded-full"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Step 2 IDF -->
+            <div class="slide" id="slide-4">
+                <div class="inline-block bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    Step 2</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Inverse Document Frequency (IDF) - The Global Score
+                </h2>
+                <p class="text-lg text-slate-600 mb-2">The second step looks at the bigger picture. It asks:</p>
+                <p class="text-xl font-semibold text-slate-800 mb-6 text-center italic">"How rare is this word across
+                    the entire library of documents?"</p>
+
+                <div class="math-box text-center text-lg">
+                    $$\text{IDF} = \log_{10} \left( \frac{\text{Total Number of Documents}}{\text{Number of documents
+                    containing the term}} \right)$$
+                </div>
+
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg">
+                    <h3 class="font-bold text-amber-900 mb-2">The Calculation Concept</h3>
+                    <p class="mb-2">Your database has <strong>1,000 articles</strong>. The word
+                        <strong>"Python"</strong> only appears in <strong>10</strong> of those articles.</p>
+                    <p class="text-slate-700 mb-2">First, we divide: $\frac{1000}{10} = 100$.</p>
+                    <p class="text-slate-700 mb-4">Now, we take the Logarithm of 100.</p>
+                    <div class="math-box bg-white">
+                        $$\text{IDF} = \log_{10}(100) = \mathbf{2}$$
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2"><em>Why Log?</em> If a word is incredibly rare (1 in
+                        1,000,000), multiplying by a million breaks the math. Logarithms gracefully compress massive
+                        numbers (Log of 1,000,000 is just 6!).</p>
+                </div>
+            </div>
+
+            <!-- Slide 6: Step 3 Final -->
+            <div class="slide" id="slide-5">
+                <div
+                    class="inline-block bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    Step 3</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Bringing it Together (TF-IDF)</h2>
+                <p class="text-lg text-slate-600 mb-6">The final step is simply multiplying the <span
+                        class="highlight-tf">Local Score (TF)</span> by the <span class="highlight-idf">Global Score
+                        (IDF)</span>.</p>
+
+                <div class="math-box text-center text-xl bg-slate-800 text-white border-0 py-8">
+                    $$\text{TF-IDF} = \text{TF} \times \text{IDF}$$
+                </div>
+
+                <div class="mt-8 flex flex-col items-center">
+                    <p class="text-xl mb-4">Using our numbers for the word <strong>"Python"</strong>:</p>
+
+                    <div
+                        class="flex items-center justify-center gap-4 text-2xl font-mono font-bold w-full max-w-lg bg-white p-6 rounded-xl shadow">
+                        <div class="text-tf text-center">
+                            <div class="text-sm text-slate-400 mb-1">TF</div>
+                            0.05
+                        </div>
+                        <div class="text-slate-400">×</div>
+                        <div class="text-idf text-center">
+                            <div class="text-sm text-slate-400 mb-1">IDF</div>
+                            2
+                        </div>
+                        <div class="text-slate-400">=</div>
+                        <div class="text-tfidf text-center text-4xl">
+                            <div class="text-sm text-slate-400 mb-1 font-sans">TF-IDF</div>
+                            0.10
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Why 'The' Dies -->
+            <div class="slide" id="slide-6">
+                <div
+                    class="inline-block bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    The Magic</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Why does this math work so perfectly?</h2>
+                <p class="text-lg text-slate-600 mb-6">Let's run the exact same math on the common word
+                    <strong>"the"</strong>.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-tf mb-2">1. Local Score (TF)</h3>
+                        <p class="text-slate-600">It appears 20 times in our 100-word article.</p>
+                        <div class="math-box shadow-none bg-slate-50 mt-2">
+                            $$\text{TF} = \frac{20}{100} = \mathbf{0.20}$$
+                        </div>
+                        <p class="text-sm text-slate-500 mt-2">That is a very high TF score!</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-idf mb-2">2. Global Score (IDF)</h3>
+                        <p class="text-slate-600">"the" appears in all 1,000 out of 1,000 articles.</p>
+                        <div class="math-box shadow-none bg-slate-50 mt-2">
+                            $$\text{Ratio} = \frac{1000}{1000} = 1$$
+                            $$\text{IDF} = \log_{10}(1) = \mathbf{0}$$
+                        </div>
+                        <p class="text-sm text-slate-500 mt-2">The Logarithm of 1 is always zero.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 text-white p-6 rounded-xl text-center">
+                    <h3 class="text-xl font-bold mb-4">Final Score for "the"</h3>
+                    <div class="text-3xl font-mono mb-4 text-red-400">
+                        0.20 <span class="text-slate-500">×</span> 0 <span class="text-slate-500">=</span> 0
+                    </div>
+                    <p class="text-lg">Because the word is so common everywhere, its IDF drops to zero, which
+                        <strong>completely wipes out</strong> its final score. It mathematically proves "the" is a
+                        useless keyword!</p>
+                </div>
+            </div>
+
+            <!-- Slide 8: Interactive Game -->
+            <div class="slide" id="slide-7">
+                <div class="inline-block bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">
+                    Interactive</div>
+                <h2 class="text-3xl font-bold text-slate-800 mb-4">Play Library Detective!</h2>
+                <p class="text-slate-600 mb-6">We have a mystery book with <strong>1,000 words</strong> total. Our
+                    library has <strong>10,000 books</strong> total. Click a word below to calculate its TF-IDF score
+                    and see if it's the secret topic!</p>
+
+                <div class="flex flex-wrap gap-3 mb-8 justify-center">
+                    <button onclick="calculateGame('The', 100, 10000)"
+                        class="px-6 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-tf transition-all shadow-sm">
+                        "The"
+                    </button>
+                    <button onclick="calculateGame('Robot', 50, 100)"
+                        class="px-6 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-tf transition-all shadow-sm">
+                        "Robot"
+                    </button>
+                    <button onclick="calculateGame('Apple', 2, 500)"
+                        class="px-6 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-tf transition-all shadow-sm">
+                        "Apple"
+                    </button>
+                    <button onclick="calculateGame('Quantum', 80, 10)"
+                        class="px-6 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-700 hover:bg-slate-50 hover:border-tf transition-all shadow-sm">
+                        "Quantum"
+                    </button>
+                </div>
+
+                <!-- Results Box -->
+                <div id="game-results" class="hidden bg-white p-6 rounded-xl border border-slate-200 shadow-lg">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Analysis for: <span id="res-word"
+                            class="text-indigo-600"></span></h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="text-sm text-blue-800 font-bold mb-1">Local (TF)</div>
+                            <div class="text-xs text-slate-500 mb-2"><span id="res-count"></span> / 1000 words</div>
+                            <div class="text-2xl font-mono text-blue-600" id="res-tf"></div>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg">
+                            <div class="text-sm text-amber-800 font-bold mb-1">Global (IDF)</div>
+                            <div class="text-xs text-slate-500 mb-2">In <span id="res-docs"></span> / 10,000 books</div>
+                            <div class="text-2xl font-mono text-amber-600" id="res-idf"></div>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-lg border-2 border-emerald-200">
+                            <div class="text-sm text-emerald-800 font-bold mb-1">Final (TF-IDF)</div>
+                            <div class="text-xs text-slate-500 mb-2">TF × IDF</div>
+                            <div class="text-3xl font-mono text-emerald-600 font-bold" id="res-tfidf"></div>
+                        </div>
+                    </div>
+
+                    <div id="res-verdict" class="text-center text-lg font-semibold p-3 rounded-lg bg-slate-100"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="bg-white border-t border-slate-200 p-4 px-6 flex justify-between items-center shrink-0">
+            <button id="btn-prev" onclick="changeSlide(-1)"
+                class="px-5 py-2.5 rounded-lg text-slate-600 font-medium hover:bg-slate-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2">
+                <i class="ph ph-arrow-left"></i> Back
+            </button>
+            <div class="text-slate-400 text-sm font-medium" id="page-indicator">
+                Step 1 of 8
+            </div>
+            <button id="btn-next" onclick="changeSlide(1)"
+                class="px-5 py-2.5 bg-indigo-600 rounded-lg text-white font-medium hover:bg-indigo-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm">
+                Next <i class="ph ph-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <script src="../js/tf_idf_visualization.js"></script>
+</body>
+
+</html>

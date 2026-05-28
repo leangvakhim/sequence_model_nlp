@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Dense Vectors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth transitions for the moving elements */
+        .node-transition {
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Custom graph background */
+        .grid-bg {
+            background-image:
+                linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+                linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans p-4 md:p-8 flex flex-col items-center">
+
+    <div class="max-w-5xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col h-[90vh] min-h-[600px]">
+
+        <!-- Header -->
+        <div class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center shrink-0">
+            <div>
+                <h1 class="text-2xl font-bold">How Computers Learn Words</h1>
+                <p class="text-blue-200 text-sm">Visualizing Dense Vectors in Sequence Models</p>
+            </div>
+            <div class="text-right">
+                <span id="step-counter" class="bg-blue-800 text-blue-100 text-sm font-bold px-3 py-1 rounded-full">
+                    Step 1 / 7
+                </span>
+            </div>
+        </div>
+
+        <!-- Visual Stage (The Graph/Playroom) -->
+        <div class="relative flex-grow bg-slate-50 overflow-hidden grid-bg" id="stage-container">
+
+            <!-- Dynamic Elements Container -->
+            <div id="dynamic-html-container"
+                class="absolute inset-0 z-10 flex items-center justify-center p-8 pointer-events-none">
+                <!-- HTML overlays (like the sentence or vector lists) go here -->
+            </div>
+
+            <!-- Axes Layer -->
+            <div id="axes" class="absolute inset-0 z-0 hidden opacity-0 transition-opacity duration-1000">
+                <!-- X Axis -->
+                <div class="absolute top-1/2 left-0 w-full h-[2px] bg-slate-400"></div>
+                <div class="absolute top-1/2 right-4 -mt-3 text-slate-500 font-semibold text-sm">More Fluffy ➔</div>
+                <!-- Y Axis -->
+                <div class="absolute left-1/2 top-0 w-[2px] h-full bg-slate-400"></div>
+                <div class="absolute top-4 left-1/2 ml-2 text-slate-500 font-semibold text-sm">More of a Pet<br>⬆</div>
+            </div>
+
+            <!-- Playroom Zones Layer (For Step 1) -->
+            <div id="playroom-zones"
+                class="absolute inset-0 z-0 flex hidden opacity-0 transition-opacity duration-1000">
+                <div
+                    class="w-1/3 h-full bg-green-100/50 border-r-2 border-dashed border-green-300 flex flex-col items-center justify-start pt-4">
+                    <span class="font-bold text-green-700">Stuffed Animals</span></div>
+                <div
+                    class="w-1/3 h-full bg-blue-100/50 border-r-2 border-dashed border-blue-300 flex flex-col items-center justify-start pt-4">
+                    <span class="font-bold text-blue-700">Vehicles</span></div>
+                <div class="w-1/3 h-full bg-orange-100/50 flex flex-col items-center justify-start pt-4"><span
+                        class="font-bold text-orange-700">Play Food</span></div>
+            </div>
+
+            <!-- Nodes Layer -->
+            <div id="nodes-container" class="absolute inset-0 z-20 w-full h-full">
+                <!-- Javascript will inject words/icons here -->
+            </div>
+
+            <!-- Lines/Connections Layer -->
+            <svg id="svg-layer" class="absolute inset-0 z-10 w-full h-full pointer-events-none">
+                <!-- Javascript will inject connecting lines here -->
+            </svg>
+
+        </div>
+
+        <!-- Information / Text Area -->
+        <div
+            class="bg-white border-t border-slate-200 p-6 md:p-8 shrink-0 relative z-30 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+            <h2 id="step-title" class="text-2xl font-bold text-slate-800 mb-3 transition-colors">The Giant Playroom</h2>
+            <p id="step-description" class="text-slate-600 leading-relaxed text-lg h-24 overflow-y-auto">
+                Imagine you are organizing a giant playroom filled with all the toys in the world. You’d probably group
+                them! Stuffed animals in one corner, cars in another. If you get a new stuffed dog, you know exactly
+                where it goes: right next to the stuffed cat.
+            </p>
+
+            <!-- Controls -->
+            <div class="mt-6 flex justify-between items-center">
+                <button id="btn-prev"
+                    class="px-6 py-2.5 rounded-lg font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    ← Back
+                </button>
+
+                <div class="flex gap-2" id="dots-container">
+                    <!-- Dots will be generated here -->
+                </div>
+
+                <button id="btn-next"
+                    class="px-6 py-2.5 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition">
+                    Next Step →
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../js/dense_vector_visualization.js"></script>
+</body>
+
+</html>

@@ -1,10 +1,11 @@
+// <!-- Replaced src with inline script for full single-file functionality -->
 // Data containing all the steps, explanations, and visual HTML content
 const stepsData = [
     {
         title: "The Raw Text",
         desc: "Computers only understand numbers, but human language comes as raw text. Let's start with a simple sentence.",
         visual: `
-            <div class="text-3xl md:text-4xl font-serif text-gray-800 bg-white px-8 py-6 rounded-lg shadow-md border border-gray-100 text-center">
+            <div class="text-3xl md:text-4xl font-serif text-gray-800 bg-white px-8 py-6 rounded-lg shadow-md border border-gray-100 text-center flex items-center">
                 "The cat sat on the mat"
             </div>
         `
@@ -13,7 +14,7 @@ const stepsData = [
         title: "Tokenization",
         desc: "The first step is to chop the text into smaller, manageable pieces called 'tokens'. These are usually words or punctuation.",
         visual: `
-            <div class="flex flex-wrap gap-3 justify-center text-xl font-mono">
+            <div class="flex flex-wrap gap-3 justify-center items-center text-xl font-mono">
                 <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded shadow-sm border border-blue-200">The</span>
                 <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded shadow-sm border border-blue-200">cat</span>
                 <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded shadow-sm border border-blue-200">sat</span>
@@ -27,7 +28,7 @@ const stepsData = [
         title: "Building a Vocabulary",
         desc: "Next, we create a 'dictionary' of all unique words in our dataset and assign an integer ID to each word. (Note: 'The' and 'the' are often lowercased to be the same).",
         visual: `
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-lg">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-lg place-content-center">
                 <div class="bg-white p-3 rounded shadow-sm border border-gray-200 flex justify-between font-mono"><span class="text-gray-500">0</span> <span class="font-bold text-indigo-700">the</span></div>
                 <div class="bg-white p-3 rounded shadow-sm border border-gray-200 flex justify-between font-mono"><span class="text-gray-500">1</span> <span class="font-bold text-indigo-700">cat</span></div>
                 <div class="bg-white p-3 rounded shadow-sm border border-gray-200 flex justify-between font-mono"><span class="text-gray-500">2</span> <span class="font-bold text-indigo-700">sat</span></div>
@@ -40,7 +41,7 @@ const stepsData = [
         title: "One-Hot Encoding",
         desc: "The simplest classical representation. Each word becomes a vector of zeros, with a single '1' placed at the index of that word in the vocabulary.",
         visual: `
-            <div class="flex flex-col gap-4 w-full max-w-xl font-mono text-lg">
+            <div class="flex flex-col gap-4 w-full max-w-xl font-mono text-lg justify-center">
                 <div class="flex items-center gap-4">
                     <span class="w-16 text-right font-bold text-indigo-700">cat:</span>
                     <div class="flex gap-2">
@@ -69,7 +70,7 @@ const stepsData = [
         title: "Classical NLP Equations: TF-IDF",
         desc: "To capture a word's importance better than simple counts, Classical NLP uses Term Frequency-Inverse Document Frequency. It mathematically scales down common words (like 'the') and scales up rare, meaningful words.",
         visual: `
-            <div class="w-full flex flex-col gap-6 items-center">
+            <div class="w-full flex flex-col gap-6 items-center justify-center">
 
                 <!-- TF Equation -->
                 <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 w-full max-w-2xl flex items-center gap-4">
@@ -96,6 +97,14 @@ const stepsData = [
                 <div class="text-lg font-serif mt-2 bg-blue-50 px-6 py-2 rounded-full text-blue-900 border border-blue-100 font-bold">
                     TF-IDF = TF × IDF
                 </div>
+
+                <!-- Button for TF-IDF Visualization -->
+                <a href="./tf_idf_visualization.html" class="mt-4 px-6 py-3 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-md flex items-center gap-2 cursor-pointer">
+                    TF-IDF visualization
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
             </div>
         `
     },
@@ -103,7 +112,7 @@ const stepsData = [
         title: "Word Embeddings (Deep Learning)",
         desc: "Sequence Models (like RNNs & Transformers) don't use sparse 0s and 1s. They use Dense Vectors (Embeddings) learned by the network. Words with similar meanings get similar numerical vectors!",
         visual: `
-            <div class="flex flex-col gap-6 w-full max-w-xl">
+            <div class="flex flex-col gap-6 w-full max-w-xl justify-center">
                 <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 shadow-inner">
                     <div class="text-indigo-900 font-bold mb-2 flex items-center justify-between">
                         <span>cat</span>
@@ -129,6 +138,60 @@ const stepsData = [
                         <span class="bg-white px-2 py-1 rounded border border-purple-200">0.08,</span>
                         <span class="bg-white px-2 py-1 rounded border border-purple-200">... ]</span>
                     </div>
+                </div>
+
+                <!-- Button for Dense Vectors Visualization -->
+                <div class="flex justify-center mt-2">
+                    <a href="./dense_vector_visualization.html" class="px-6 py-3 rounded-lg font-medium text-white bg-purple-600 hover:bg-purple-700 transition-colors shadow-md flex items-center gap-2 cursor-pointer">
+                        Dense Vectors visualization
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        `
+    },
+    // NEW STEP 7 ADDED HERE
+    {
+        title: "Bringing it to Life with PyTorch",
+        desc: "Here is how you actually create those dense vectors using Python and PyTorch. We turn our word IDs (like '1' for cat) into rich numerical representations with just a few lines of code!",
+        visual: `
+            <div class="bg-[#1e1e2e] rounded-xl shadow-lg p-5 font-mono text-sm text-gray-300 w-full max-w-2xl overflow-x-auto text-left border border-gray-700">
+                <!-- Mac OS style window dots -->
+                <div class="flex items-center gap-2 mb-4 pb-3 border-b border-gray-700/50">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="ml-2 text-gray-500 text-xs font-sans tracking-wide">embedding_tutorial.py</span>
+                </div>
+
+                <!-- Python Code -->
+                <p><span class="text-pink-400 font-bold">import</span> torch</p>
+                <p><span class="text-pink-400 font-bold">import</span> torch.nn <span class="text-pink-400 font-bold">as</span> nn</p>
+                <br/>
+
+                <p class="text-green-400/80 italic"># 1. Setup our Neural Network Embedding Layer</p>
+                <p class="text-green-400/80 italic"># We have 5 words in vocab, each word will get a 3-number vector</p>
+                <p><span class="text-blue-300">embed_layer</span> = nn.Embedding(num_embeddings=<span class="text-orange-300">5</span>, embedding_dim=<span class="text-orange-300">3</span>)</p>
+                <br/>
+
+                <p class="text-green-400/80 italic"># 2. We want the vectors for "cat" (ID: 1) and "mat" (ID: 4)</p>
+                <p><span class="text-blue-300">word_ids</span> = torch.tensor([<span class="text-orange-300">1</span>, <span class="text-orange-300">4</span>])</p>
+                <br/>
+
+                <p class="text-green-400/80 italic"># 3. Magic! Pass the IDs through the layer to get Dense Vectors</p>
+                <p><span class="text-blue-300">dense_vectors</span> = embed_layer(word_ids)</p>
+                <br/>
+
+                <p><span class="text-yellow-200">print</span>(dense_vectors)</p>
+                <br/>
+
+                <!-- Simulated Terminal Output -->
+                <div class="bg-black/40 p-4 rounded-lg text-emerald-400 text-xs border border-gray-800 mt-2">
+                    <span class="text-gray-500"># Output Terminal</span><br/><br/>
+                    > tensor([[-0.2341,  1.1209, -0.4566],  <span class="text-gray-500 italic"><-- Vector for 'cat'</span><br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ 0.8932, -0.0211,  0.5590]]) <span class="text-gray-500 italic"><-- Vector for 'mat'</span>
                 </div>
             </div>
         `
@@ -188,7 +251,8 @@ function renderStep() {
     // Allow a tiny delay so the browser registers the empty state, triggering CSS animation
     setTimeout(() => {
         const contentWrapper = document.createElement('div');
-        contentWrapper.className = 'w-full m-auto flex justify-center fade-in';
+        // Updated classes: added `my-auto` and `shrink-0` to guarantee centered items aren't squished or cut-off when scrolling is required.
+        contentWrapper.className = 'w-full my-auto shrink-0 flex flex-col items-center py-4 fade-in';
         contentWrapper.innerHTML = data.visual;
         visualContainer.appendChild(contentWrapper);
     }, 50);
