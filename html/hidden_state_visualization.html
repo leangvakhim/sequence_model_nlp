@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNN Visualization: Robo's Magic Memory Box</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- KaTeX CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
+        crossorigin="anonymous"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .step-container.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-pop {
+            animation: pop 0.3s ease-in-out;
+        }
+
+        /* Backpack styles */
+        .memory-word {
+            transition: all 0.5s ease;
+        }
+
+        .loop-line {
+            stroke-dasharray: 10;
+            animation: dash 2s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        /* Floating animation for robot */
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+    </style>
+</head>
+
+<body class="h-screen w-full flex flex-col items-center justify-center p-4 sm:p-8 bg-slate-50 text-slate-800">
+
+    <!-- Main Card -->
+    <div
+        class="bg-white rounded-3xl shadow-xl border border-slate-200 w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden relative">
+
+        <!-- Header -->
+        <div class="bg-indigo-600 text-white p-6 flex items-center justify-between shadow-md z-10">
+            <h1 class="text-2xl font-bold flex items-center gap-3">
+                <span class="text-3xl">🧠</span> The Magic Memory Box (RNNs Explained)
+            </h1>
+            <div class="text-indigo-200 font-semibold bg-indigo-700 px-4 py-1 rounded-full text-sm">
+                Step <span id="step-indicator">1</span> of 5
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-grow p-6 sm:p-10 overflow-y-auto relative flex flex-col">
+
+            <!-- STEP 1: The Problem -->
+            <div id="step-1"
+                class="step-container active flex-col items-center text-center h-full justify-center space-y-8">
+                <div class="text-7xl floating">🤖</div>
+                <h2 class="text-3xl font-bold text-slate-700">Meet your friend, Robo!</h2>
+                <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                    You want to tell Robo a story, but Robo can only hear <b>one word at a time</b>.
+                    <br><br>
+                    If you say, <span class="italic text-indigo-500 font-bold">"The dog barked loudly,"</span> Robo
+                    hears it step-by-step. But without a memory, by the time you say "loudly", he has completely
+                    forgotten about the "dog"!
+                </p>
+                <div
+                    class="flex gap-4 items-center justify-center p-6 bg-slate-100 rounded-2xl w-full max-w-md border-2 border-dashed border-slate-300">
+                    <div class="text-xl font-bold text-slate-400 line-through">The</div>
+                    <div class="text-xl font-bold text-slate-400 line-through">dog</div>
+                    <div class="text-xl font-bold text-slate-400 line-through">barked</div>
+                    <div class="text-3xl font-black text-indigo-600 animate-pulse">loudly</div>
+                    <div class="text-4xl">🤷‍♂️</div>
+                </div>
+            </div>
+
+            <!-- STEP 2: The Backpack -->
+            <div id="step-2" class="step-container flex-col items-center text-center h-full justify-center space-y-8">
+                <div class="flex items-end justify-center gap-4">
+                    <div class="text-7xl floating">🤖</div>
+                    <div class="text-6xl animate-bounce">🎒</div>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-700">The Magic Backpack</h2>
+                <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                    To fix this, we give Robo a <b>magic backpack</b>. Every time he hears a new word, he looks inside
+                    his backpack to remember what you said before.
+                </p>
+                <p
+                    class="text-lg text-slate-600 max-w-2xl leading-relaxed bg-pink-50 p-4 rounded-xl border border-pink-200">
+                    He adds the new word to the story, and packs it all back into the backpack for the next word.
+                    <br><br>
+                    <span class="font-bold text-pink-600">That magic backpack is called the Hidden State!</span>
+                </p>
+            </div>
+
+            <!-- STEP 3: Mapping the Diagram -->
+            <div id="step-3" class="step-container flex-col items-center h-full justify-start space-y-6">
+                <h2 class="text-3xl font-bold text-slate-700 text-center">Looking at the Picture</h2>
+                <p class="text-lg text-slate-600 max-w-3xl text-center">
+                    Here is how our robot story translates to a real Recurrent Neural Network (RNN) diagram:
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mt-4">
+                    <!-- Diagram visually rebuilt -->
+                    <div
+                        class="flex flex-col items-center justify-center bg-white p-8 rounded-2xl shadow-sm border-2 border-slate-100 relative">
+                        <!-- Input -->
+                        <div class="flex flex-col items-center z-10">
+                            <div
+                                class="bg-green-100 border-2 border-green-400 text-green-700 px-6 py-3 rounded-xl font-bold shadow-sm">
+                                Input (x)
+                            </div>
+                            <div class="h-8 w-1 bg-green-400"></div>
+                            <!-- Arrow down -->
+                            <div
+                                class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-green-400">
+                            </div>
+                        </div>
+
+                        <!-- RNN Block -->
+                        <div
+                            class="bg-blue-100 border-4 border-blue-500 rounded-2xl p-8 z-10 relative mt-2 w-48 flex justify-center shadow-md">
+                            <span class="text-blue-700 font-black text-2xl">RNN Box</span>
+
+                            <!-- Loop Path (SVG) -->
+                            <svg class="absolute top-1/2 left-full w-24 h-32 -translate-y-1/2 -ml-4"
+                                style="overflow:visible">
+                                <path d="M 0,0 C 80,-40 80,40 0,0" fill="none" stroke="#ec4899" stroke-width="6"
+                                    class="loop-line" marker-end="url(#arrow)" />
+                                <defs>
+                                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6"
+                                        markerHeight="6" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#ec4899" />
+                                    </marker>
+                                </defs>
+                                <text x="50" y="-10" fill="#ec4899" font-weight="bold" font-size="14"
+                                    text-anchor="middle">Hidden State</text>
+                            </svg>
+                        </div>
+
+                        <!-- Output -->
+                        <div class="flex flex-col items-center z-10 mt-2">
+                            <div class="h-8 w-1 bg-yellow-400"></div>
+                            <!-- Arrow down -->
+                            <div
+                                class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-yellow-400">
+                            </div>
+                            <div
+                                class="bg-yellow-100 border-2 border-yellow-400 text-yellow-700 px-6 py-3 rounded-xl font-bold shadow-sm">
+                                Output (y)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explanations -->
+                    <div class="flex flex-col justify-center space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-4 h-4 mt-1 rounded-full bg-green-400 shrink-0"></div>
+                            <p class="text-slate-700"><b class="text-green-600">Input (x):</b> The brand new word you
+                                just said (like <i>"barked"</i>).</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-4 h-4 mt-1 rounded-full bg-blue-500 shrink-0"></div>
+                            <p class="text-slate-700"><b class="text-blue-600">Blue Box (RNN):</b> Robo's brain trying
+                                to understand the story.</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-4 h-4 mt-1 rounded-full bg-pink-500 shrink-0"></div>
+                            <p class="text-slate-700"><b class="text-pink-600">Pink Memory Loop:</b> Robo checking his
+                                magic backpack to remember earlier words. It loops back so he never forgets what just
+                                happened.</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-4 h-4 mt-1 rounded-full bg-yellow-400 shrink-0"></div>
+                            <p class="text-slate-700"><b class="text-yellow-600">Output (y):</b> Robo understanding the
+                                story so far, and guessing what comes next!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Interactive Memory Loop -->
+            <div id="step-4" class="step-container flex-col items-center h-full w-full">
+                <h2 class="text-3xl font-bold text-slate-700 mb-2">Interactive Memory Loop</h2>
+                <p class="text-slate-500 mb-6">Click the words in order to tell Robo a story. Watch how the Hidden State
+                    (Backpack) builds up!</p>
+
+                <div class="flex flex-col lg:flex-row w-full max-w-5xl gap-8 h-full min-h-[400px]">
+                    <!-- Left: Word Generator -->
+                    <div class="flex flex-col w-full lg:w-1/3 bg-slate-100 p-6 rounded-2xl border border-slate-200">
+                        <h3 class="font-bold text-lg mb-4 text-slate-700">1. Next Word (Input)</h3>
+                        <div class="flex overflow-x-auto gap-2 mb-6 pb-2" id="word-buttons">
+                            <!-- Buttons injected by JS -->
+                        </div>
+                        <div class="mt-auto">
+                            <div class="text-sm font-semibold text-slate-500 mb-2">Current Input ($x_t$):</div>
+                            <div id="current-input-display"
+                                class="bg-green-100 border-2 border-green-400 text-green-700 text-center py-4 rounded-xl font-bold text-2xl h-16 flex items-center justify-center">
+                                ...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle: RNN Brain -->
+                    <div class="flex flex-col items-center justify-center w-full lg:w-1/3 relative z-10">
+                        <div class="text-5xl mb-4 floating">🤖</div>
+                        <div
+                            class="bg-blue-100 border-4 border-blue-500 p-6 rounded-2xl w-full text-center shadow-lg relative">
+                            <h3 class="font-black text-blue-700 text-xl mb-2">Robo's Brain (RNN)</h3>
+                            <p class="text-xs text-blue-600 font-semibold mb-4">Combines Input + Backpack</p>
+
+                            <div class="h-20 bg-white rounded-lg flex items-center justify-center text-sm text-slate-400 italic p-2 border-2 border-slate-100"
+                                id="brain-processing">
+                                Waiting for words...
+                            </div>
+                        </div>
+
+                        <!-- Output Arrow -->
+                        <div class="h-8 w-1 bg-yellow-400 mt-2"></div>
+                        <div
+                            class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-yellow-400">
+                        </div>
+                        <div id="current-output-display"
+                            class="mt-2 bg-yellow-100 border-2 border-yellow-400 text-yellow-700 px-6 py-2 rounded-xl font-bold shadow-sm w-full text-center truncate">
+                            Understanding...
+                        </div>
+                    </div>
+
+                    <!-- Right: The Backpack (Hidden State) -->
+                    <div
+                        class="flex flex-col w-full lg:w-1/3 bg-pink-50 p-6 rounded-2xl border-2 border-pink-300 relative overflow-hidden">
+
+                        <!-- Connection lines for desktop -->
+                        <svg class="hidden lg:block absolute -left-12 top-1/2 -translate-y-1/2 w-12 h-32 z-0"
+                            style="overflow:visible">
+                            <path d="M 0,0 C 40,-30 40,30 0,0" fill="none" stroke="#ec4899" stroke-width="4"
+                                stroke-dasharray="6" class="loop-line" marker-end="url(#arrow2)" />
+                            <defs>
+                                <marker id="arrow2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5"
+                                    markerHeight="5" orient="auto-start-reverse">
+                                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#ec4899" />
+                                </marker>
+                            </defs>
+                        </svg>
+
+                        <div class="flex justify-between items-center mb-4 relative z-10">
+                            <h3 class="font-bold text-lg text-pink-700 flex items-center gap-2">
+                                🎒 Backpack
+                            </h3>
+                            <span class="text-xs font-semibold bg-pink-200 text-pink-800 px-2 py-1 rounded-full">Hidden
+                                State ($h_t$)</span>
+                        </div>
+
+                        <p class="text-xs text-pink-600 mb-4 font-medium">Notice how older words get "squished" and fade
+                            away!</p>
+
+                        <!-- Memory Stack -->
+                        <div id="memory-stack"
+                            class="flex flex-col gap-2 flex-grow overflow-y-auto bg-white/50 p-2 rounded-xl border border-pink-100">
+                            <div class="text-center text-slate-400 italic mt-10 text-sm">Backpack is empty</div>
+                        </div>
+
+                        <button onclick="resetStory()"
+                            class="mt-4 w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors text-sm">
+                            Empty Backpack (Reset)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5: The Squishy Backpack Problem (Vanishing Gradient) -->
+            <div id="step-5" class="step-container flex-col items-center h-full justify-center space-y-6 text-center overflow-y-auto">
+                <div class="mt-64 text-6xl bg-red-100 p-6 rounded-full border-4 border-red-300 animate-pulse">🎒💦</div>
+                <h2 class="text-3xl font-bold text-slate-700">The "Squishy Backpack" Problem</h2>
+
+                <div class="max-w-3xl space-y-6 text-left">
+                    <p class="text-lg text-slate-600">
+                        In a basic RNN, Robo can usually only remember about <b>5 to 10 words</b> really clearly. Did
+                        you notice the words fading in the previous step? Here is why:
+                    </p>
+
+                    <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-xl">
+                        <h4 class="font-bold text-orange-800 text-lg">The Squishy Backpack:</h4>
+                        <p class="text-orange-700 mt-1">
+                            Imagine packing a real backpack. If you keep putting more and more things inside, the stuff
+                            at the very bottom gets squished and hard to find.
+                        </p>
+                    </div>
+
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-xl">
+                        <h4 class="font-bold text-red-800 text-lg">Fading Memories:</h4>
+                        <p class="text-red-700 mt-1">
+                            As new words keep getting stuffed into the Hidden State loop, the oldest words start to fade
+                            away or get "squished" by the new ones. By the time you reach the end of a long story, Robo
+                            forgets how it started!
+                        </p>
+                    </div>
+
+                    <div class="text-center pt-4">
+                        <span
+                            class="inline-block bg-slate-800 text-white font-bold px-6 py-3 rounded-xl shadow-md text-lg">
+                            Computer Scientists call this fading memory the <br> <span class="text-red-400">"Vanishing
+                                Gradient Problem"</span>.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="bg-slate-100 p-4 sm:p-6 border-t border-slate-200 flex justify-between items-center z-10">
+            <button id="btn-back" onclick="changeStep(-1)"
+                class="px-6 py-3 bg-white border border-slate-300 text-slate-600 font-bold rounded-xl shadow-sm hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+                ← Back
+            </button>
+
+            <div class="flex gap-2" id="dot-indicators">
+                <!-- Dots injected via JS -->
+            </div>
+
+            <button id="btn-next" onclick="changeStep(1)"
+                class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2">
+                Next →
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/hidden_state_visualization.js"></script>
+</body>
+
+</html>

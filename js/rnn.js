@@ -21,10 +21,15 @@ const steps = [
     {
         title: "2. The RNN Loop",
         text: "<p>An RNN introduces a <strong>loop</strong>. Instead of just passing inputs to outputs, it passes its own output (from the previous step) back into itself along with the new input.</p><p class='mt-3'>This internal loop acts as the network's <strong>Memory</strong> (called the <em>Hidden State</em>).</p>",
+        // Adding routing information for Step 2 of 5
+        route: {
+            text: "Hidden State Visualization &rarr;",
+            url: "./hidden_state_visualization.html" // Change this to your actual file routing
+        },
         visual: `
             <div class="flex flex-col items-center relative">
                 <!-- Simple Node SVG -->
-                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="500" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <!-- Input arrow -->
                     <path d="M100 180 V 130" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
                     <text x="110" y="165" fill="#475569" font-family="sans-serif" font-weight="bold">Input (x)</text>
@@ -39,7 +44,7 @@ const steps = [
 
                     <!-- The Loop -->
                     <path d="M 140 100 C 210 100, 210 50, 140 75" stroke="#ec4899" stroke-width="4" fill="transparent" marker-end="url(#arrowPink)"/>
-                    <text x="160" y="70" fill="#db2777" font-family="sans-serif" font-weight="bold" font-size="12">Memory Loop</text>
+                    <text x="150" y="60" fill="#db2777" font-family="sans-serif" font-weight="bold" font-size="12">Memory Loop</text>
 
                     <!-- Defs for arrows -->
                     <defs>
@@ -57,6 +62,11 @@ const steps = [
     {
         title: "3. Unrolling in Time",
         text: "<p>To understand how it processes a sequence, we visually <strong>'unroll'</strong> the loop across time steps ($t$).</p><p class='mt-3'>At each step, the cell takes the current input ($x_t$) AND the previous hidden state ($h_{t-1}$) to generate a new hidden state ($h_t$) and an output ($y_t$).</p>",
+        // Adding routing information for Step 3 of 5
+        route: {
+            text: "Unrolling Times visualization &rarr;",
+            url: "./unrolling_time.html" // Change this to your actual file routing
+        },
         visual: `
             <div class="flex flex-col items-center w-full overflow-x-auto pb-4">
                 <svg width="340" height="200" viewBox="0 0 340 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="min-w-[340px]">
@@ -108,12 +118,17 @@ const steps = [
     {
         title: "4. The Math Inside (Equations)",
         text: "<p>Inside that RNN cell, what math is actually happening?</p><p class='mt-3'>It calculates two main things at each step $t$: the <strong>New Memory</strong> ($h_t$) and the <strong>Prediction/Output</strong> ($y_t$).</p>",
+        // Adding routing information for Step 4 of 5
+        route: {
+            text: "RNN Math Explanation &rarr;",
+            url: "./rnn_math.html" // Change this to your actual file routing
+        },
         visual: `
             <div class="text-left w-full space-y-4">
                 <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
                     <h3 class="font-bold text-indigo-900 mb-2 text-sm uppercase tracking-wide">1. Update Hidden State (Memory)</h3>
                     <div class="overflow-x-auto pb-2">
-                        $$ h_t = \\tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h) $$
+                        $$h_t = \\tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$
                     </div>
                     <ul class="mt-2 text-xs text-slate-600 list-disc pl-5 space-y-1">
                         <li><strong>$h_t$:</strong> New hidden state (current memory)</li>
@@ -127,7 +142,7 @@ const steps = [
                 <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
                     <h3 class="font-bold text-indigo-900 mb-2 text-sm uppercase tracking-wide">2. Calculate Output</h3>
                     <div class="overflow-x-auto pb-2">
-                        $$ y_t = W_{hy} h_t + b_y $$
+                        $$y_t = W_{hy} h_t + b_y$$
                     </div>
                     <ul class="mt-2 text-xs text-slate-600 list-disc pl-5 space-y-1">
                         <li><strong>$y_t$:</strong> Current Output (e.g., predicting next word)</li>
@@ -159,6 +174,31 @@ const steps = [
                 </p>
             </div>
         `
+    },
+    {
+        title: "6. Coding it in PyTorch",
+        text: "<p>Let's see how this looks in actual Python code using <strong>PyTorch</strong>.</p><p class='mt-3'>You don't need to write the complex math from scratch! PyTorch provides <code>nn.RNN</code>. You just tell it the size of your input features and how big you want the 'memory' (hidden state) to be.</p><p class='mt-3 text-indigo-600 font-semibold'>Passing a sequence into the RNN gives you both the outputs for every step, and the final memory state!</p>",
+        // route: {
+        //     text: "View Full PyTorch Tutorial &rarr;",
+        //     url: "pytorch-tutorial.html"
+        // },
+        visual: `
+            <div class="w-full text-left bg-slate-900 p-5 rounded-xl shadow-lg overflow-x-auto text-sm sm:text-base font-mono text-slate-300 border border-slate-700">
+                <p><span class="text-pink-400">import</span> torch</p>
+                <p><span class="text-pink-400">import</span> torch.nn <span class="text-pink-400">as</span> nn</p>
+                <br/>
+                <p class="text-slate-500"># 1. Define the network</p>
+                <p>input_size = <span class="text-orange-300">10</span>  <span class="text-slate-500"># e.g., features per word</span></p>
+                <p>hidden_size = <span class="text-orange-300">20</span> <span class="text-slate-500"># Size of the memory loop</span></p>
+                <p>rnn = nn.RNN(input_size, hidden_size, batch_first=<span class="text-orange-300">True</span>)</p>
+                <br/>
+                <p class="text-slate-500"># 2. Create dummy data (1 sentence, 5 words)</p>
+                <p>sequence = torch.randn(<span class="text-orange-300">1</span>, <span class="text-orange-300">5</span>, <span class="text-orange-300">10</span>)</p>
+                <br/>
+                <p class="text-slate-500"># 3. Run the RNN!</p>
+                <p>output, hidden_state = rnn(sequence)</p>
+            </div>
+        `
     }
 ];
 
@@ -174,6 +214,10 @@ const domBtnNext = document.getElementById('btn-next');
 const domStepCounter = document.getElementById('step-counter');
 const domProgressContainer = document.getElementById('progress-container');
 const contentArea = document.getElementById('content-area');
+
+// New DOM Elements for the Routing Feature
+const domRoutingBtnContainer = document.getElementById('routing-btn-container');
+const domRoutingLink = document.getElementById('routing-link');
 
 // --- Initialization ---
 function init() {
@@ -221,6 +265,17 @@ function renderStep() {
     domTitle.innerHTML = stepData.title;
     domDesc.innerHTML = stepData.text;
     domVisual.innerHTML = stepData.visual;
+
+    // NEW: Toggle visibility of the routing button based on the current step
+    if (stepData.route) {
+        domRoutingLink.href = stepData.route.url;
+        domRoutingLink.innerHTML = stepData.route.text;
+        domRoutingBtnContainer.classList.remove('hidden');
+        domRoutingBtnContainer.classList.add('flex');
+    } else {
+        domRoutingBtnContainer.classList.add('hidden');
+        domRoutingBtnContainer.classList.remove('flex');
+    }
 
     // Trigger MathJax if equations are present
     if (window.MathJax) {

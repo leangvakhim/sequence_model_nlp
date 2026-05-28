@@ -80,13 +80,23 @@
         </header>
 
         <!-- Content Area -->
-        <main class="flex-grow p-6 sm:p-10 flex flex-col md:flex-row items-center gap-8 relative" id="content-area">
+        <main class="flex-grow p-6 sm:p-10 flex flex-col md:flex-row items-stretch gap-8 relative" id="content-area">
 
             <!-- Text Description Container -->
-            <div class="md:w-1/2 space-y-4" id="text-container">
-                <h2 id="step-title" class="text-2xl font-semibold text-indigo-700">Loading...</h2>
-                <div id="step-description" class="text-slate-600 leading-relaxed text-lg">
-                    <!-- Text injected via JS -->
+            <div class="md:w-1/2 flex flex-col" id="text-container">
+                <div class="space-y-4 flex-grow">
+                    <h2 id="step-title" class="text-2xl font-semibold text-indigo-700">Loading...</h2>
+                    <div id="step-description" class="text-slate-600 leading-relaxed text-lg">
+                        <!-- Text injected via JS -->
+                    </div>
+                </div>
+
+                <!-- NEW: Routing Button Container (Hidden by default, shown conditionally via JS) -->
+                <div id="routing-btn-container" class="mt-8 hidden w-full justify-center">
+                    <a id="routing-link" href="#"
+                        class="inline-flex items-center justify-center px-6 py-2.5 bg-emerald-600 text-white rounded-lg shadow-sm hover:bg-emerald-700 transition-colors font-medium">
+                        Loading Link...
+                    </a>
                 </div>
             </div>
 

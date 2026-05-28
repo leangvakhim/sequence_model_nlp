@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNN: Unrolling in Time Visualization</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- KaTeX CSS & JS for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        /* Smooth transitions for all diagram elements */
+        .diagram-element {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom styled thought bubble */
+        .thought-bubble {
+            position: relative;
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            padding: 10px 15px;
+            text-align: center;
+        }
+
+        .thought-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #3b82f6 transparent;
+            display: block;
+            width: 0;
+        }
+
+        .thought-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            margin-left: -7px;
+            border-width: 7px 7px 0;
+            border-style: solid;
+            border-color: #eff6ff transparent;
+            display: block;
+            width: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-purple-900 text-white p-6 shadow-md">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <h1 class="text-2xl font-bold">Understanding RNNs: Unrolling in Time</h1>
+            <div id="progress" class="text-purple-200 font-semibold bg-purple-800 px-4 py-2 rounded-full shadow-inner">
+                Step 1 of X
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow w-full max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-6">
+
+        <!-- Left: Interactive Diagram -->
+        <section
+            class="lg:col-span-8 bg-white rounded-2xl shadow-xl p-8 flex items-center justify-center min-h-[500px] relative overflow-hidden border border-gray-100">
+
+            <!-- Loop Arrow (Step 1) -->
+            <svg id="loop-arrow"
+                class="diagram-element absolute w-32 h-32 text-purple-400 z-0 opacity-0 scale-90 top-[15%]" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+
+            <!-- Unrolled Flex Container -->
+            <div
+                class="flex flex-row items-center justify-center space-x-2 md:space-x-8 z-10 w-full relative pt-10 pb-10">
+
+                <!-- Time Step: t-1 (Past) -->
+                <div class="flex flex-col items-center w-1/4 relative">
+                    <!-- Output y(t-1) -->
+                    <div id="out-box-t-1"
+                        class="diagram-element thought-bubble text-sm text-blue-800 font-semibold mb-2 h-auto py-3 w-32 flex flex-col items-center justify-center opacity-0 scale-90">
+                        <span>"A balloon"</span>
+                        <span class="text-xs text-blue-600 mt-1">$y_{t-1}$</span>
+                    </div>
+                    <svg id="out-arr-t-1" class="diagram-element h-8 w-6 text-blue-400 mb-2 opacity-0 scale-90"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+
+                    <!-- RNN Cell t-1 -->
+                    <div id="rnn-t-1"
+                        class="diagram-element bg-purple-500 text-white font-bold rounded-xl w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg border-4 border-purple-700 opacity-0 scale-90 relative">
+                        RNN
+                        <span
+                            class="absolute -top-3 -right-3 bg-purple-800 text-xs px-2 py-1 rounded-full border border-white">$t-1$</span>
+                    </div>
+
+                    <!-- Input x(t-1) -->
+                    <svg id="in-arr-t-1" class="diagram-element h-8 w-6 text-green-500 mt-2 opacity-0 scale-90"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    <div id="in-box-t-1"
+                        class="diagram-element bg-green-50 border-2 border-green-400 text-green-800 rounded-lg p-2 text-center shadow-md w-full mt-2 opacity-0 scale-90 flex flex-col items-center">
+                        <span class="text-2xl mb-1">🪫🎈</span>
+                        <span class="text-xs font-semibold">Deflated</span>
+                        <span class="text-sm font-bold text-green-700 mt-1">$x_{t-1}$</span>
+                    </div>
+                </div>
+
+                <!-- Hidden State Arrow h(t-1) -->
+                <div class="flex flex-col items-center justify-center h-full w-12 pt-16">
+                    <svg id="h-arr-1" class="diagram-element w-full h-8 text-pink-500 opacity-0 scale-90 drop-shadow-md"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span id="h-lbl-1"
+                        class="diagram-element text-pink-600 font-bold text-xs mt-1 opacity-0 scale-90">$h_{t-1}$</span>
+                </div>
+
+                <!-- Time Step: t (Present) -->
+                <div class="flex flex-col items-center w-1/4 relative">
+                    <!-- Output y(t) -->
+                    <div id="out-box-t"
+                        class="diagram-element thought-bubble text-sm text-blue-800 font-semibold mb-2 h-auto py-3 w-40 flex flex-col items-center justify-center opacity-0 scale-90 ring-4 ring-yellow-400 ring-opacity-0 transition-shadow">
+                        <span>"She is blowing it up!"</span>
+                        <span class="text-xs text-blue-600 mt-1">$y_t$</span>
+                    </div>
+                    <svg id="out-arr-t" class="diagram-element h-8 w-6 text-blue-400 mb-2 opacity-0 scale-90"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+
+                    <!-- RNN Cell t -->
+                    <div id="rnn-t"
+                        class="diagram-element bg-purple-500 text-white font-bold rounded-xl w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg border-4 border-purple-700 opacity-0 scale-90 relative ring-4 ring-yellow-400 ring-opacity-0 transition-shadow">
+                        RNN
+                        <span
+                            class="absolute -top-3 -right-3 bg-purple-800 text-xs px-2 py-1 rounded-full border border-white">$t$</span>
+                    </div>
+
+                    <!-- Input x(t) -->
+                    <svg id="in-arr-t" class="diagram-element h-8 w-6 text-green-500 mt-2 opacity-0 scale-90"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    <div id="in-box-t"
+                        class="diagram-element bg-green-50 border-2 border-green-400 text-green-800 rounded-lg p-2 text-center shadow-md w-full mt-2 opacity-0 scale-90 flex flex-col items-center ring-4 ring-yellow-400 ring-opacity-0 transition-shadow">
+                        <span class="text-2xl mb-1">👧🌬️</span>
+                        <span class="text-xs font-semibold">Blowing air</span>
+                        <span class="text-sm font-bold text-green-700 mt-1">$x_t$</span>
+                    </div>
+                </div>
+
+                <!-- Hidden State Arrow h(t) -->
+                <div class="flex flex-col items-center justify-center h-full w-12 pt-16">
+                    <svg id="h-arr-2" class="diagram-element w-full h-8 text-pink-500 opacity-0 scale-90 drop-shadow-md"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    <span id="h-lbl-2"
+                        class="diagram-element text-pink-600 font-bold text-xs mt-1 opacity-0 scale-90">$h_t$</span>
+                </div>
+
+                <!-- Time Step: t+1 (Future) -->
+                <div class="flex flex-col items-center w-1/4 relative">
+                    <!-- Output y(t+1) -->
+                    <div id="out-box-t-plus-1"
+                        class="diagram-element thought-bubble text-sm text-blue-800 font-semibold mb-2 h-auto py-3 w-32 flex flex-col items-center justify-center opacity-0 scale-90">
+                        <span>"It's huge!"</span>
+                        <span class="text-xs text-blue-600 mt-1">$y_{t+1}$</span>
+                    </div>
+                    <svg id="out-arr-t-plus-1" class="diagram-element h-8 w-6 text-blue-400 mb-2 opacity-0 scale-90"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+
+                    <!-- RNN Cell t+1 -->
+                    <div id="rnn-t-plus-1"
+                        class="diagram-element bg-purple-500 text-white font-bold rounded-xl w-20 h-20 md:w-24 md:h-24 flex items-center justify-center shadow-lg border-4 border-purple-700 opacity-0 scale-90 relative">
+                        RNN
+                        <span
+                            class="absolute -top-3 -right-3 bg-purple-800 text-xs px-2 py-1 rounded-full border border-white">$t+1$</span>
+                    </div>
+
+                    <!-- Input x(t+1) -->
+                    <svg id="in-arr-t-plus-1" class="diagram-element h-8 w-6 text-green-500 mt-2 opacity-0 scale-90"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    <div id="in-box-t-plus-1"
+                        class="diagram-element bg-green-50 border-2 border-green-400 text-green-800 rounded-lg p-2 text-center shadow-md w-full mt-2 opacity-0 scale-90 flex flex-col items-center">
+                        <span class="text-2xl mb-1">🎈✨</span>
+                        <span class="text-xs font-semibold">Huge Balloon</span>
+                        <span class="text-sm font-bold text-green-700 mt-1">$x_{t+1}$</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Right: Story & Controls -->
+        <section
+            class="lg:col-span-4 flex flex-col bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            <!-- Text Box -->
+            <div class="p-6 md:p-8 flex-grow">
+                <h2 id="step-title"
+                    class="text-xl font-extrabold text-purple-900 mb-4 border-b-2 border-purple-100 pb-2">
+                    Title Placeholder
+                </h2>
+                <div id="step-content" class="text-gray-700 text-base leading-relaxed space-y-4">
+                    Content Placeholder
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="bg-gray-50 p-6 border-t border-gray-100 flex justify-between items-center">
+                <button id="btn-prev" onclick="changeStep(-1)"
+                    class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg shadow-sm hover:bg-gray-50 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    &larr; Back
+                </button>
+                <button id="btn-next" onclick="changeStep(1)"
+                    class="px-6 py-2.5 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Next Step &rarr;
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="../js/unrolling_time.js"></script>
+</body>
+
+</html>
