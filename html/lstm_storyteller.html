@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSTM Toy Factory Visualization</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+    <!-- KaTeX JS -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        /* Custom animations */
+        @keyframes highlight {
+            0% {
+                background-color: #fef08a;
+                transform: scale(1.05);
+            }
+
+            100% {
+                background-color: white;
+                transform: scale(1);
+            }
+        }
+
+        .animate-update {
+            animation: highlight 1s ease-out;
+        }
+
+        /* Smooth transitions for content */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-6 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold">LSTM: The Giant Toy Factory</h1>
+                <p class="text-indigo-200 mt-1">Understanding Long Short-Term Memory step-by-step</p>
+            </div>
+            <!-- Lucide Icons as SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="text-indigo-300">
+                <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-4xl mx-auto w-full p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Live Dashboard (State Tracker) -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-4 z-10">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Live Factory Status</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="dashboard-container">
+
+                <!-- Conveyor Belt -->
+                <div id="dash-belt"
+                    class="flex items-center gap-4 p-3 rounded-lg border border-blue-100 bg-blue-50 transition-all duration-300">
+                    <div class="bg-blue-500 text-white p-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                            <path d="M6 12h12"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-blue-600 uppercase">Conveyor Belt ($C_t$)</p>
+                        <p class="text-xl font-bold" id="val-belt">Waiting...</p>
+                    </div>
+                </div>
+
+                <!-- Backpack -->
+                <div id="dash-pack"
+                    class="flex items-center gap-4 p-3 rounded-lg border border-orange-100 bg-orange-50 transition-all duration-300">
+                    <div class="bg-orange-500 text-white p-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 10v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9"></path>
+                            <path d="M10 2v2"></path>
+                            <path d="M14 2v2"></path>
+                            <path d="M9 22v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"></path>
+                            <path d="M4 10h16"></path>
+                            <path d="M8 10V6a4 4 0 0 1 8 0v4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-orange-600 uppercase">Backpack ($h_t$)</p>
+                        <p class="text-xl font-bold" id="val-pack">Waiting...</p>
+                    </div>
+                </div>
+
+                <!-- Delivery -->
+                <div id="dash-del"
+                    class="flex items-center gap-4 p-3 rounded-lg border border-green-100 bg-green-50 transition-all duration-300">
+                    <div class="bg-green-500 text-white p-2 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 17h4V5H2v12h3"></path>
+                            <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h2"></path>
+                            <circle cx="7.5" cy="17.5" r="2.5"></circle>
+                            <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-green-600 uppercase">New Delivery ($x_t$)</p>
+                        <p class="text-xl font-bold" id="val-del">Waiting...</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Dynamic Content Card -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden min-h-[400px] flex flex-col">
+            <!-- Progress Bar -->
+            <div class="h-2 w-full bg-gray-100">
+                <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-500" style="width: 0%;">
+                </div>
+            </div>
+
+            <div class="p-6 md:p-8 flex-grow" id="content-container">
+                <!-- Content injected here via JS -->
+            </div>
+
+            <!-- Navigation -->
+            <div class="bg-gray-50 border-t border-gray-100 p-4 flex justify-between items-center">
+                <button id="btn-back"
+                    class="px-5 py-2.5 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Back
+                </button>
+                <span id="step-indicator" class="text-sm font-semibold text-gray-500">Step 1 of X</span>
+                <button id="btn-next"
+                    class="px-5 py-2.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 shadow-sm">
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="../js/lstm_storyteller.js"></script>
+</body>
+
+</html>

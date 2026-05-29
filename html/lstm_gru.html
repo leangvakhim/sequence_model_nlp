@@ -129,8 +129,7 @@
         <!-- Content Area -->
         <div class="flex-grow flex flex-col lg:flex-row overflow-hidden min-h-0">
 
-            <!-- Left Panel: Text & Equations (NOW SCROLLABLE) -->
-            <!-- We use flex-col and overflow-y-auto here. my-auto on the inner child ensures centering when short, scrolling when long. -->
+            <!-- Left Panel: Text & Equations -->
             <div
                 class="w-full h-[45%] shrink-0 lg:h-auto lg:shrink lg:w-5/12 p-6 lg:p-8 border-b lg:border-b-0 lg:border-r border-slate-100 overflow-y-auto bg-white flex flex-col">
                 <div id="content-container" class="transition-opacity duration-300 my-auto pb-4">
@@ -139,6 +138,18 @@
                     <div id="step-description"
                         class="text-base lg:text-lg text-slate-600 leading-relaxed mb-6 lg:mb-8 space-y-4">
                         Description goes here...
+                    </div>
+
+                    <!-- Custom Buttons for Step 1 -->
+                    <div id="step-1-buttons" class="hidden flex-col sm:flex-row gap-3 mb-6 lg:mb-8">
+                        <button onclick="window.open('./gru_storyteller.html', '_blank')"
+                            class="flex-1 bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold py-2.5 px-4 rounded-xl shadow-sm hover:bg-indigo-100 transition-colors">
+                            GRU Visualizer
+                        </button>
+                        <button onclick="window.open('./lstm_storyteller.html', '_blank')"
+                            class="flex-1 bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold py-2.5 px-4 rounded-xl shadow-sm hover:bg-emerald-100 transition-colors">
+                            LSTM Visualizer
+                        </button>
                     </div>
 
                     <!-- Math Equations Container -->
@@ -153,36 +164,39 @@
                 </div>
             </div>
 
-            <!-- Right Panel: Interactive Diagrams -->
+            <!-- Right Panel: Interactive Diagrams (NOW SCROLLABLE) -->
             <div
-                class="w-full h-[55%] shrink-0 lg:h-auto lg:shrink lg:w-7/12 bg-slate-50 p-2 sm:p-8 flex items-center justify-center relative overflow-hidden">
+                class="w-full h-[55%] shrink-0 lg:h-auto lg:shrink lg:w-7/12 bg-slate-50 relative overflow-y-auto overflow-x-hidden">
 
                 <!-- Introduction Graphic -->
                 <div id="diagram-intro"
-                    class="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-8 text-center transition-all duration-500 z-10">
-                    <div
-                        class="flex items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 scale-75 sm:scale-100 origin-center">
-                        <div class="p-3 sm:p-4 bg-white shadow rounded-xl border border-slate-200 opacity-30">Word 1
-                        </div>
-                        <span class="text-slate-400">→</span>
-                        <div class="p-3 sm:p-4 bg-white shadow rounded-xl border border-slate-200 opacity-60">Word 2
-                        </div>
-                        <span class="text-slate-400">→</span>
+                    class="absolute top-0 left-0 w-full min-h-full flex flex-col transition-all duration-500 z-10 p-8 sm:p-12 lg:p-16">
+                    <div class="m-auto flex flex-col items-center justify-center w-full max-w-2xl text-center">
                         <div
-                            class="p-3 sm:p-4 bg-blue-50 shadow-md rounded-xl border-2 border-blue-400 font-bold text-blue-700">
-                            Word N</div>
+                            class="flex items-center justify-center gap-2 sm:gap-4 mb-6 sm:mb-8 scale-75 sm:scale-100 origin-center">
+                            <div class="p-3 sm:p-4 bg-white shadow rounded-xl border border-slate-200 opacity-30">Word 1
+                            </div>
+                            <span class="text-slate-400">→</span>
+                            <div class="p-3 sm:p-4 bg-white shadow rounded-xl border border-slate-200 opacity-60">Word 2
+                            </div>
+                            <span class="text-slate-400">→</span>
+                            <div
+                                class="p-3 sm:p-4 bg-blue-50 shadow-md rounded-xl border-2 border-blue-400 font-bold text-blue-700">
+                                Word N</div>
+                        </div>
+                        <p class="text-sm sm:text-base text-slate-500 max-w-md italic px-4">Standard RNNs suffer from
+                            "Vanishing Gradients" — they
+                            forget the distant past (Word 1) when processing the present (Word N). LSTMs and GRUs fix
+                            this.
+                        </p>
                     </div>
-                    <p class="text-sm sm:text-base text-slate-500 max-w-md italic px-4">Standard RNNs suffer from
-                        "Vanishing Gradients" — they
-                        forget the distant past (Word 1) when processing the present (Word N). LSTMs and GRUs fix this.
-                    </p>
                 </div>
 
                 <!-- GRU Diagram -->
                 <div id="diagram-gru"
-                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95">
+                    class="absolute top-0 left-0 w-full min-h-full flex flex-col opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95 p-8 sm:p-12 lg:p-16">
                     <div
-                        class="relative w-full max-w-lg p-4 sm:p-6 bg-white rounded-2xl shadow-lg border border-slate-200 scale-[0.70] sm:scale-90 lg:scale-100 origin-center">
+                        class="relative w-full max-w-lg p-4 sm:p-6 bg-white rounded-2xl shadow-lg border border-slate-200 scale-[0.70] sm:scale-90 lg:scale-100 origin-center m-auto">
                         <div
                             class="absolute -top-3 left-6 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                             GRU Cell</div>
@@ -244,9 +258,9 @@
 
                 <!-- LSTM Diagram -->
                 <div id="diagram-lstm"
-                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95">
+                    class="absolute top-0 left-0 w-full min-h-full flex flex-col opacity-0 pointer-events-none transition-all duration-500 z-0 scale-95 p-8 sm:p-12 lg:p-16">
                     <div
-                        class="relative w-full max-w-2xl p-4 sm:p-6 bg-white rounded-2xl shadow-lg border border-slate-200 scale-[0.55] sm:scale-[0.8] lg:scale-100 origin-center">
+                        class="relative w-full max-w-2xl p-4 sm:p-6 bg-white rounded-2xl shadow-lg border border-slate-200 scale-[0.55] sm:scale-[0.8] lg:scale-100 origin-center m-auto">
                         <div
                             class="absolute -top-3 left-6 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                             LSTM Cell</div>
@@ -333,23 +347,23 @@
                     </div>
                 </div>
 
+                <!-- Summary Diagram -->
                 <div id="diagram-summary"
-                    class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 z-0 p-4 sm:p-8">
+                    class="absolute top-0 left-0 w-full min-h-full flex flex-col opacity-0 pointer-events-none transition-all duration-500 z-0 p-8 sm:p-12 lg:p-16">
                     <div
-                        class="w-full h-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                        class="w-full max-w-5xl bg-white rounded-2xl shadow-lg border border-slate-200 flex flex-col m-auto">
                         <div
-                            class="bg-slate-800 text-white p-4 text-center font-bold tracking-wide shadow-sm z-10 relative">
-                            Cheat
-                            Sheet: Equations Overview</div>
+                            class="bg-slate-800 text-white p-4 text-center font-bold tracking-wide shadow-sm z-10 relative rounded-t-2xl">
+                            Cheat Sheet: Equations Overview
+                        </div>
 
-                        <!-- Scrollable list of formulas -->
-                        <div class="flex-grow overflow-y-auto bg-white">
-                            <div class="flex flex-col sm:flex-row p-4 sm:p-6 gap-6 min-h-full">
+                        <!-- Full content that naturally pushes the container height -->
+                        <div class="bg-white rounded-b-2xl">
+                            <div class="flex flex-col sm:flex-row p-4 sm:p-6 lg:p-8 gap-6">
                                 <!-- GRU Col -->
                                 <div class="flex-1 bg-purple-50 rounded-xl p-5 border border-purple-100 shadow-sm">
                                     <h3 class="text-lg font-bold text-purple-800 border-b border-purple-200 pb-2 mb-4">
-                                        GRU (Gated
-                                        Recurrent Unit)</h3>
+                                        GRU (Gated Recurrent Unit)</h3>
                                     <ul class="space-y-4 math-font text-slate-700">
                                         <li><strong class="font-sans text-xs text-purple-600 uppercase block mb-1">Reset
                                                 Gate</strong>
@@ -377,8 +391,7 @@
                                 <!-- LSTM Col -->
                                 <div class="flex-1 bg-blue-50 rounded-xl p-5 border border-blue-100 shadow-sm">
                                     <h3 class="text-lg font-bold text-blue-800 border-b border-blue-200 pb-2 mb-4">LSTM
-                                        (Long Short-Term
-                                        Memory)</h3>
+                                        (Long Short-Term Memory)</h3>
                                     <ul class="space-y-4 math-font text-slate-700">
                                         <li><strong class="font-sans text-xs text-blue-600 uppercase block mb-1">Forget
                                                 Gate</strong>

@@ -79,6 +79,7 @@ const mathContent = document.getElementById('math-content');
 const btnPrev = document.getElementById('btn-prev');
 const btnNext = document.getElementById('btn-next');
 const contentContainer = document.getElementById('content-container');
+const step1Buttons = document.getElementById('step-1-buttons'); // New reference for the buttons
 
 const diagrams = {
     intro: document.getElementById('diagram-intro'),
@@ -110,6 +111,15 @@ function updateUI() {
         titleEl.innerHTML = stepData.title;
         descEl.innerHTML = stepData.desc;
 
+        // Handle the new buttons visibility (Only show on step 1 which is index 0)
+        if (currentStep === 0) {
+            step1Buttons.classList.remove('hidden');
+            step1Buttons.classList.add('flex');
+        } else {
+            step1Buttons.classList.add('hidden');
+            step1Buttons.classList.remove('flex');
+        }
+
         if (stepData.equation) {
             mathContent.innerHTML = stepData.equation;
             mathContainer.classList.remove('hidden');
@@ -122,8 +132,8 @@ function updateUI() {
 
         contentContainer.style.opacity = '1';
 
-        // Scroll the left panel back to the top automatically on step change
-        document.querySelector('.overflow-y-auto').scrollTop = 0;
+        // Scroll BOTH panels back to the top automatically on step change
+        document.querySelectorAll('.overflow-y-auto').forEach(el => el.scrollTop = 0);
     }, 300);
 
     // Handle Diagrams View Toggling
